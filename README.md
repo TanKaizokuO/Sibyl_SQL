@@ -248,5 +248,6 @@ MIT License
 
 ## 🙌 Author
 
-Developed as a University Full-Stack AI Course Project Focused on AI agents, database security, and system design
+* Developed as a University Full-Stack AI Course Project.
+* Focused on AI database agents, PostgreSQL security, and modern web systems design.
 
