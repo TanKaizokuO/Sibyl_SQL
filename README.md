@@ -74,8 +74,7 @@ Frontend (React + Vite)
 ▼
 Backend (FastAPI)
 │
-│  Session Manager (Active Sessions & Memory Window)
-│  Cognitive Agent (LangChain ReAct)
+│  Sibyl_SQL Agent (LangChain ReAct)
 │  ├── DB Tools (role-aware)
 │  ├── RAG Retriever (pgvector)
 │  ├── Suggestion Engine (Schema Context + Query Analyzer)
