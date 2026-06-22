@@ -1,4 +1,4 @@
-# 🧠 Cognitive Database Agent (NeuroDB / CerebroDB)
+# 🧠 Sibyl_SQL
 
 ### AI-Powered Conversational Database System with Unforgeable Security
 
