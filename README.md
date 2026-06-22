@@ -242,12 +242,11 @@ database/
 
 ## 📜 License
 
-MIT License
+Apache License 2.0 - See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙌 Author
 
-Developed as a **University Full-Stack AI Course Project**
-Focused on **AI agents, database security, and system design**
+Developed as a University Full-Stack AI Course Project Focused on AI agents, database security, and system design
 
