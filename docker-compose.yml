@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
   # ================================
@@ -25,48 +25,9 @@ services:
       - sibyl-sql-network
 
   # ================================
-  # Ollama LLM Server
+  # NOTE: Ollama runs natively on the host at port 11434.
+  # Containers reach it via host.docker.internal:11434
   # ================================
-  ollama:
-    image: ollama/ollama:latest
-    container_name: sibyl-sql-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - sibyl-sql-network
-    # GPU support (uncomment if NVIDIA GPU available):
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
-  # ================================
-  # Model Loader (one-shot init container)
-  # ================================
-  ollama-init:
-    image: curlimages/curl:latest
-    container_name: sibyl-sql-ollama-init
-    depends_on:
-      ollama:
-        condition: service_healthy
-    entrypoint: >
-      sh -c "
-        echo 'Pulling LLM model...' &&
-        curl -s http://ollama:11434/api/pull -d '{\"name\": \"llama3.1:8b\"}' &&
-        echo 'Model ready!'
-      "
-    networks:
-      - sibyl-sql-network
 
   # ================================
   # FastAPI Backend
@@ -84,7 +45,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-sibyl_sql_dev_password}
       - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
       - LLM_MODEL=${LLM_MODEL:-llama3.1:8b}
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-not-needed-for-ollama}
       - SECRET_KEY=${SECRET_KEY:-docker-dev-secret-key-change-in-production}
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
@@ -95,14 +56,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      ollama:
-        condition: service_healthy
     networks:
       - sibyl-sql-network
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Allows container to reach host's Ollama on Linux
 
-  # ================================
-  # React Frontend (Vite dev server)
   # ================================
   frontend:
     build:
@@ -125,8 +84,7 @@ services:
 volumes:
   postgres_data:
     name: sibyl-sql-postgres-data
-  ollama_data:
-    name: sibyl-sql-ollama-data
+
 
 # ================================
 # Networks
