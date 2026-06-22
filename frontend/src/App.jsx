@@ -588,8 +588,9 @@ function App() {
                 </button>
               </form>
             </div>
+          </div>
             
-            <div className="sidebar-terminal">
+          <div className="sidebar-terminal">
               <div className={`sidebar-header ${loading ? 'active' : ''}`}>
                 <Code className="icon-sm" />
                 Autonomous Cognitive Core
