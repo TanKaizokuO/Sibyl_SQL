@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== NeuroDB Database Initialization ==="
+echo "=== Sibyl_SQL Database Initialization ==="
 
 for f in /docker-entrypoint-initdb.d/*.sql; do
   echo "Running: $f"

@@ -40,7 +40,7 @@ export default function LoginForm({ onLoginSuccess }) {
           <div className="login-logo-container">
             <Brain className="login-logo" />
           </div>
-          <h2 className="login-title">NeuroDB Security</h2>
+          <h2 className="login-title">Sibyl_SQL Security</h2>
           <p className="login-subtitle">Cognitive Database Agent</p>
         </div>
 

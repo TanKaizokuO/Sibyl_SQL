@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create .env file for Docker (overridden by docker-compose environment)
-RUN echo "DB_PASSWORD=neurodb_dev_password" > .env
+RUN echo "DB_PASSWORD=sibyl_sql_dev_password" > .env
 
 # Expose port
 EXPOSE 8000

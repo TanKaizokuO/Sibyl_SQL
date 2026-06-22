@@ -6,11 +6,11 @@ services:
   # ================================
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: neurodb-postgres
+    container_name: sibyl-sql-postgres
     environment:
       POSTGRES_DB: cognitive_db_agent
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-neurodb_dev_password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sibyl_sql_dev_password}
     ports:
       - "5432:5432"
     volumes:
@@ -22,14 +22,14 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - neurodb-network
+      - sibyl-sql-network
 
   # ================================
   # Ollama LLM Server
   # ================================
   ollama:
     image: ollama/ollama:latest
-    container_name: neurodb-ollama
+    container_name: sibyl-sql-ollama
     ports:
       - "11434:11434"
     volumes:
@@ -40,7 +40,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - neurodb-network
+      - sibyl-sql-network
     # GPU support (uncomment if NVIDIA GPU available):
     # deploy:
     #   resources:
@@ -55,7 +55,7 @@ services:
   # ================================
   ollama-init:
     image: curlimages/curl:latest
-    container_name: neurodb-ollama-init
+    container_name: sibyl-sql-ollama-init
     depends_on:
       ollama:
         condition: service_healthy
@@ -66,7 +66,7 @@ services:
         echo 'Model ready!'
       "
     networks:
-      - neurodb-network
+      - sibyl-sql-network
 
   # ================================
   # FastAPI Backend
@@ -75,13 +75,13 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: neurodb-backend
+    container_name: sibyl-sql-backend
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=cognitive_db_agent
       - DB_USER=postgres
-      - DB_PASSWORD=${DB_PASSWORD:-neurodb_dev_password}
+      - DB_PASSWORD=${DB_PASSWORD:-sibyl_sql_dev_password}
       - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
       - LLM_MODEL=${LLM_MODEL:-llama3.1:8b}
       - OLLAMA_BASE_URL=http://ollama:11434
@@ -98,7 +98,7 @@ services:
       ollama:
         condition: service_healthy
     networks:
-      - neurodb-network
+      - sibyl-sql-network
     restart: unless-stopped
 
   # ================================
@@ -108,7 +108,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: neurodb-frontend
+    container_name: sibyl-sql-frontend
     environment:
       - VITE_API_URL=http://localhost:8000
     ports:
@@ -116,7 +116,7 @@ services:
     depends_on:
       - backend
     networks:
-      - neurodb-network
+      - sibyl-sql-network
     restart: unless-stopped
 
 # ================================
@@ -124,14 +124,14 @@ services:
 # ================================
 volumes:
   postgres_data:
-    name: neurodb-postgres-data
+    name: sibyl-sql-postgres-data
   ollama_data:
-    name: neurodb-ollama-data
+    name: sibyl-sql-ollama-data
 
 # ================================
 # Networks
 # ================================
 networks:
-  neurodb-network:
-    name: neurodb-network
+  sibyl-sql-network:
+    name: sibyl-sql-network
     driver: bridge
