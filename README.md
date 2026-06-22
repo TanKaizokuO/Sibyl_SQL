@@ -223,7 +223,7 @@ npm run dev
 
 ```text
 backend/
- ├── agent/        # Cognitive agent, tools, suggestions & session manager
+ ├── agent/        # Sibyl_SQL agent, tools, suggestions & session manager
  ├── api/          # FastAPI routes and SSE endpoints
  ├── db/           # PostgreSQL connection
  └── core/         # Config & settings
