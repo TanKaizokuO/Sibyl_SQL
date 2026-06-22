@@ -224,6 +224,9 @@ Before running, ensure you have initialized the Postgres database schema and loa
 # Seed the database
 psql -h localhost -U postgres -d cognitive_db_agent -f database/schema.sql
 psql -h localhost -U postgres -d cognitive_db_agent -f database/seed_data.sql
+
+# Compute embeddings for schemas
+PYTHONPATH=. python3 backend/scripts/seed_embeddings.py
 ```
 
 ---
