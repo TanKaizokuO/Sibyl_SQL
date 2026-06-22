@@ -6,37 +6,60 @@
 }
 
 :root {
-  /* Colors */
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary: #64748b;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --bg: #ffffff;
-  --bg-secondary: #f8fafc;
-  --border: #e2e8f0;
-  --text: #1e293b;
-  --text-secondary: #64748b;
+  /* Cyberpunk Palette */
+  --bg-main: #06090f;          /* Midnight abyss background */
+  --bg-surface: #0d1117;       /* Deep charcoal container backgrounds */
+  --bg-surface-hover: #161b22; /* Hover states for containers */
+  --border-glow: #21262d;      /* Low-key structural borders */
+  
+  /* Cybernetic Accents */
+  --neon-cyan: #00f0ff;        /* Primary system theme (Active paths, text links) */
+  --toxic-green: #39ff14;      /* Data flow / Successful execution states */
+  --warning-crimson: #ff0055;  /* RLS / Security Blocked alerts */
+  --warning-amber: #ffb000;    /* Heuristic correction / Warnings */
+  --muted-cyan: rgba(0, 240, 255, 0.2); /* Muted borders for viewers */
+  --muted-red: rgba(255, 0, 85, 0.2);
+  
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* Aliases for existing tokens to minimize rewrite */
+  --primary: var(--neon-cyan);
+  --primary-dark: #00b8c2;
+  --secondary: #8b949e;
+  --success: var(--toxic-green);
+  --danger: var(--warning-crimson);
+  --warning: var(--warning-amber);
+  --bg: var(--bg-main);
+  --bg-secondary: var(--bg-surface);
+  --border: var(--border-glow);
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
   
   /* Spacing */
-  --radius: 0.5rem;
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --radius: 0; /* Sharp angles for cyberpunk feel */
+  --shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+  --shadow-md: 0 0 15px rgba(0, 240, 255, 0.15);
+  --shadow-lg: 0 0 25px rgba(0, 240, 255, 0.2);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-main);
   color: var(--text);
   line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 #root {
   min-height: 100vh;
 }
+

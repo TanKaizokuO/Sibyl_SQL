@@ -312,16 +312,13 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
     <div className="data-visualizer-enhanced">
       {/* Reasoning Badge - shows AI-suggested or heuristic mode */}
       {viewMode === 'auto' && (
-        <div className={`viz-reasoning-badge ${llmVisualizationHint ? 'viz-reasoning-badge--ai' : ''}`}>
-          <div className="reasoning-badge-content">
-            <Sparkles className="icon-badge" />
-            <div className="reasoning-text">
-              <strong>{llmVisualizationHint ? 'AI Reasoning:' : 'Auto-detected:'}</strong>{' '}
-              {recommendation.reasoning}
-            </div>
-            <div className="confidence-pill">
-              {recommendation.confidence}% confidence
-            </div>
+        <div className={`cyber-hardware-badge ${llmVisualizationHint ? 'badge-cognitive' : 'badge-heuristic'}`}>
+          <div className="badge-pulse-dot"></div>
+          <div className="badge-label">
+            {llmVisualizationHint ? '[🤖 COGNITIVE LAYOUT VERIFIED]' : '[⚙️ HEURISTIC CORRECTION ACTIVE]'}
+          </div>
+          <div className="badge-detail">
+            // {recommendation.reasoning.toUpperCase()}
           </div>
         </div>
       )}

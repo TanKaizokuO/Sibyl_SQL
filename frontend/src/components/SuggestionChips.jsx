@@ -66,7 +66,10 @@ const SuggestionChips = ({ suggestions, onSuggestionClick }) => {
               <span className="suggestion-chip__icon" aria-hidden="true">
                 {icon}
               </span>
-              <span className="suggestion-chip__text">{s.question}</span>
+              <span className="suggestion-chip__text">
+                <span className="tactical-prefix">EXECUTE_QUERY_0{idx + 1} // {(s.category || 'ACTION').toUpperCase()} // </span>
+                <span className="question-text">{s.question}</span>
+              </span>
             </button>
           );
         })}

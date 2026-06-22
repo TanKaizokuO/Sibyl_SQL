@@ -144,16 +144,18 @@ function App() {
         const response = await chatWithAgent(input, dryRun, conversationId)
         setMessages(prev => {
           const newMsgs = [...prev];
+          const isRls = !response.success && ((response.error || '').toLowerCase().includes('rls') || (response.error || '').toLowerCase().includes('permission denied'));
           newMsgs[newMsgs.length - 1] = {
-            role: 'assistant',
-            content: response.response || response.error || response.message || '',
+            role: response.success ? 'assistant' : 'error',
+            content: response.success ? (response.response || response.message || '') : (isRls ? '[❌ RLS INTERCEPT: PRIVILEGE ESCALATION TERMINATED BY KERNEL]\n' + response.error : response.error),
             intermediateSteps: response.intermediate_steps || [],
             success: response.success,
             agentRole: response.role,
             dryRun: response.dry_run,
             completedTyping: true,
             visualizationHint: response.visualization_hint || null,
-            suggestions: response.suggestions || []
+            suggestions: response.suggestions || [],
+            isRls
           };
           return newMsgs;
         });
@@ -217,8 +219,10 @@ function App() {
             lastMsg.suggestions = event.suggestions;
           } else if (event.type === 'error') {
             lastMsg.role = 'error';
-            lastMsg.content = event.content;
+            const isRls = (event.content || '').toLowerCase().includes('rls') || (event.content || '').toLowerCase().includes('permission denied');
+            lastMsg.content = isRls ? '[❌ RLS INTERCEPT: PRIVILEGE ESCALATION TERMINATED BY KERNEL]\n' + event.content : event.content;
             lastMsg.success = false;
+            lastMsg.isRls = isRls;
           }
 
           newMsgs[newMsgs.length - 1] = lastMsg;
@@ -240,15 +244,19 @@ function App() {
       console.error('Submission failed:', error);
       setMessages(prev => {
         const newMsgs = [...prev];
+        const isRls = (error.message || '').toLowerCase().includes('rls') || (error.message || '').toLowerCase().includes('permission denied');
+        const formattedErr = isRls ? '[❌ RLS INTERCEPT: PRIVILEGE ESCALATION TERMINATED BY KERNEL]\n' + error.message : (error.message || 'An error occurred during streaming');
         if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].role === 'assistant') {
           newMsgs[newMsgs.length - 1] = {
             role: 'error',
-            content: error.message || 'An error occurred during streaming'
+            content: formattedErr,
+            isRls
           };
         } else {
           newMsgs.push({
             role: 'error',
-            content: error.message || 'An error occurred during streaming'
+            content: formattedErr,
+            isRls
           });
         }
         return newMsgs;
@@ -267,25 +275,56 @@ function App() {
     }, 50);
   };
 
-  const renderIntermediateSteps = (steps, visualizationHint) => {
-    if (!steps || steps.length === 0) return null
+  const getVisualizationSteps = (steps) => {
+    if (!steps) return [];
+    return steps.map(step => {
+      let visualizationData = step.data;
+      if (!visualizationData && step.result) {
+        try {
+          const parsed = JSON.parse(step.result);
+          if (parsed.success && parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
+            visualizationData = parsed.data;
+          }
+        } catch (e) {}
+      }
+      if (visualizationData && Array.isArray(visualizationData) && visualizationData.length > 0) {
+        return { ...step, visualizationData };
+      }
+      return null;
+    }).filter(Boolean);
+  };
+
+  const renderSidebarSteps = () => {
+    // Collect all steps from all messages
+    const allSteps = [];
+    messages.forEach(msg => {
+      if (msg.intermediateSteps) {
+        allSteps.push(...msg.intermediateSteps);
+      }
+    });
+
+    if (allSteps.length === 0) {
+      return (
+        <div className="empty-logs" style={{ padding: '2rem 1rem', fontSize: '0.85rem' }}>
+          <Loader2 className="spinner icon-sm" style={{ marginRight: '0.5rem' }} />
+          Awaiting cognitive input...
+        </div>
+      );
+    }
 
     return (
       <div className="intermediate-steps">
-        <div className="steps-header">
-          <Brain className="icon" />
-          <strong>Agent Thinking Process:</strong>
-        </div>
-        {steps.map((step, idx) => (
+        {allSteps.map((step, idx) => (
           <div key={idx} className={`step step-${step.type}`}>
             {step.type === 'action' ? (
               <div className="step-action">
                 <div className="step-label">
-                  <Code className="icon" />
-                  Action: <strong>{step.tool}</strong>
+                  <Code className="icon-sm" />
+                  [TOOL CALL] {step.tool}
                 </div>
                 {step.log && (
                   <div className="step-thinking">
+                    <div className="step-label" style={{ color: 'var(--text-secondary)' }}>[THOUGHT]</div>
                     {step.log.split('\n').filter(line =>
                       line.includes('Thought:') || line.includes('Action:') || line.includes('Action Input:')
                     ).map((line, i) => (
@@ -302,49 +341,20 @@ function App() {
             ) : (
               <div className="step-observation">
                 <div className="step-label">
-                  <Eye className="icon" />
-                  Observation:
+                  <Eye className="icon-sm" />
+                  [EXECUTION STATE]
                 </div>
                 <div className="step-result">
                   <pre>{step.result}</pre>
                 </div>
-                {/* Enhanced data visualization with LLM hint support */}
-                {(() => {
-                  console.log('🔍 [VISUALIZATION DEBUG] Step:', step)
-                  console.log('🔍 [VISUALIZATION DEBUG] step.data:', step.data)
-
-                  // Try to extract data from step.data or parse from step.result
-                  let visualizationData = step.data
-
-                  // If step.data is not available, try parsing the result JSON
-                  if (!visualizationData && step.result) {
-                    try {
-                      const parsed = JSON.parse(step.result)
-                      if (parsed.success && parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
-                        visualizationData = parsed.data
-                      }
-                    } catch (e) {
-                      // Not JSON, skip
-                    }
-                  }
-
-                  if (visualizationData && Array.isArray(visualizationData) && visualizationData.length > 0) {
-                    return (
-                      <DataVisualizerEnhanced
-                        stepData={visualizationData}
-                        llmVisualizationHint={visualizationHint}
-                      />
-                    );
-                  }
-                  return null;
-                })()}
               </div>
             )}
           </div>
         ))}
       </div>
-    )
+    );
   }
+
 
   const renderAuditLogs = () => {
     return (
@@ -460,11 +470,12 @@ function App() {
         </div>
       </header>
 
-      <main className="main">
+      <main className={`main ${showAuditLogs && currentUser.role === 'admin' ? 'full-width' : ''}`}>
         {showAuditLogs && currentUser.role === 'admin' ? (
           renderAuditLogs()
         ) : (
-          <div className="chat-container">
+          <>
+            <div className="chat-container">
             <div className="messages">
               {messages.length === 0 ? (
                 <div className="empty-state">
@@ -480,9 +491,9 @@ function App() {
                   return (
                     <div key={idx} className={`message message-${msg.role}`}>
                       {msg.role === 'error' ? (
-                        <div className="alert alert-error">
+                        <div className={`alert ${msg.isRls ? 'alert-rls' : 'alert-error'}`}>
                           <AlertCircle className="icon" />
-                          <div>{msg.content}</div>
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
                         </div>
                       ) : msg.role === 'user' ? (
                         <div className="message-content">
@@ -490,7 +501,13 @@ function App() {
                         </div>
                       ) : (
                         <>
-                          {msg.intermediateSteps && msg.intermediateSteps.length > 0 && renderIntermediateSteps(msg.intermediateSteps, msg.visualizationHint)}
+                          {getVisualizationSteps(msg.intermediateSteps).map((vizStep, vIdx) => (
+                            <DataVisualizerEnhanced
+                              key={vIdx}
+                              stepData={vizStep.visualizationData}
+                              llmVisualizationHint={msg.visualizationHint}
+                            />
+                          ))}
 
                           <div className="final-answer">
                             <div className="answer-header">
@@ -540,7 +557,7 @@ function App() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask a database question..."
-                  className="input"
+                  className={`input ${currentUser.role === 'viewer' ? 'input-viewer' : 'input-active'}`}
                   disabled={loading}
                 />
                 
@@ -571,7 +588,17 @@ function App() {
                 </button>
               </form>
             </div>
-          </div>
+            
+            <div className="sidebar-terminal">
+              <div className={`sidebar-header ${loading ? 'active' : ''}`}>
+                <Code className="icon-sm" />
+                Autonomous Cognitive Core
+              </div>
+              <div className="sidebar-content">
+                {renderSidebarSteps()}
+              </div>
+            </div>
+          </>
         )}
       </main>
     </div>

@@ -39,44 +39,51 @@
   }
 }
 
-/* Reasoning Badge - Gradient Purple */
-.viz-reasoning-badge {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
-  padding: 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.reasoning-badge-content {
+/* Reasoning Badge - Cyberpunk Hardware Indicator */
+.cyber-hardware-badge {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #ffffff;
+  padding: 8px 16px;
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-glow);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.icon-badge {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+.badge-cognitive {
+  color: var(--neon-cyan);
+  border-left: 3px solid var(--neon-cyan);
 }
 
-.reasoning-text {
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.5;
+.badge-heuristic {
+  color: var(--warning-amber);
+  border-left: 3px solid var(--warning-amber);
 }
 
-.reasoning-text strong {
-  font-weight: 600;
-  margin-right: 6px;
+.badge-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: pulse 2s infinite;
 }
 
-.confidence-pill {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.badge-label {
+  font-weight: 700;
+}
+
+.badge-detail {
+  color: var(--text-secondary);
 }
 
 /* Visualizer Header */
@@ -658,4 +665,23 @@
   border-radius: 6px;
   font-size: 0.85rem;
   margin-bottom: 16px;
+}
+
+/* Kinetic Transitions */
+.recharts-wrapper, .choropleth-container {
+  animation: wireframeFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.recharts-line, .recharts-area-area, .recharts-pie-sector, .cardinal-region-path {
+  animation: strokeDraw 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wireframeFadeIn {
+  0% { opacity: 0; filter: blur(4px); transform: scale(0.98); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+@keyframes strokeDraw {
+  0% { opacity: 0; stroke-dasharray: 0 1000; }
+  100% { opacity: 1; stroke-dasharray: 1000 0; }
 }
