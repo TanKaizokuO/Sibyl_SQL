@@ -600,3 +600,62 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===========================================================================
+   Choropleth Map Styles
+   =========================================================================== */
+
+.choropleth-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.choropleth-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.choropleth-tooltip {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.choropleth-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+.choropleth-gradient {
+  width: 200px;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #dbeafe, #3b82f6, #1e3a8a);
+}
+.cardinal-region-path:hover {
+  fill: #6366f1 !important;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.6));
+}
+.choropleth-fallback-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}

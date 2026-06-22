@@ -37,8 +37,10 @@ import {
   TrendingUp,
   Info,
   Sparkles,
+  Map as MapIcon,
 } from 'lucide-react';
 import { determineChartType, determineChartTypeWithHint, ChartRecommendation, LLMVisualizationHint } from '../utils/AutoChartLogic';
+import ChoroplethMap from './ChoroplethMap';
 
 // Color palette for charts
 const COLORS = [
@@ -60,7 +62,7 @@ interface DataVisualizerProps {
 }
 
 const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData, llmVisualizationHint }) => {
-  const [viewMode, setViewMode] = useState<'auto' | 'bar' | 'line' | 'area' | 'pie' | 'table'>(
+  const [viewMode, setViewMode] = useState<'auto' | 'bar' | 'line' | 'area' | 'pie' | 'table' | 'choropleth'>(
     'auto'
   );
   const [recommendation, setRecommendation] = useState<ChartRecommendation | null>(null);
@@ -288,6 +290,14 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
         return renderAreaChart();
       case 'pie':
         return renderPieChart();
+      case 'choropleth':
+        return (
+          <ChoroplethMap
+            data={chartData}
+            regionKey={recommendation.metadata.suggestedXAxis || ''}
+            valueKey={recommendation.metadata.suggestedYAxis[0] || ''}
+          />
+        );
       case 'table':
       default:
         return renderTable();
@@ -324,8 +334,11 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
           {displayMode === 'line' && <LineChartIcon className="icon" />}
           {displayMode === 'pie' && <PieChartIcon className="icon" />}
           {displayMode === 'table' && <TableIcon className="icon" />}
+          {displayMode === 'choropleth' && <MapIcon className="icon" />}
           <span>
-            {displayMode.charAt(0).toUpperCase() + displayMode.slice(1)} View
+            {displayMode === 'choropleth'
+              ? 'Choropleth Map'
+              : displayMode.charAt(0).toUpperCase() + displayMode.slice(1) + ' View'}
           </span>
         </div>
 
@@ -374,6 +387,13 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
             title="Pie chart"
           >
             <PieChartIcon className="icon-sm" />
+          </button>
+          <button
+            className={`viz-btn ${viewMode === 'choropleth' ? 'active' : ''}`}
+            onClick={() => setViewMode('choropleth')}
+            title="Choropleth map"
+          >
+            <MapIcon className="icon-sm" />
           </button>
         </div>
       </div>

@@ -181,10 +181,10 @@ def _parse_viz_hint(output: str) -> tuple:
     if 'chart_type' not in hint:
         return clean_output, None
 
-    valid_chart_types = {'bar', 'line', 'area', 'pie', 'table'}
+    valid_chart_types = {'bar', 'line', 'area', 'pie', 'table', 'choropleth'}
     chart_type = hint.get('chart_type', 'table').lower()
     if chart_type not in valid_chart_types:
-        chart_type = 'table'  # Safe fallback (e.g. choropleth → table)
+        chart_type = 'table'  # Safe fallback (e.g. unrecognized → table)
 
     visualization_hint = {
         'chart_type': chart_type,
@@ -280,7 +280,16 @@ class CognitiveAgent:
                 base_url=settings.ollama_base_url,
                 temperature=settings.llm_temperature,
             )
-        else:
+        elif settings.llm_provider == "openai":
+            logger.info(f"Using OpenAI LLM: {settings.llm_model}")
+            from langchain_openai import ChatOpenAI
+            self.llm = ChatOpenAI(
+                model=settings.llm_model,
+                api_key=settings.openai_api_key,
+                temperature=settings.llm_temperature,
+                max_tokens=settings.llm_max_tokens,
+            )
+        elif settings.llm_provider == "gemini":
             logger.info(f"Using Google Gemini LLM: {settings.llm_model}")
             self.llm = ChatGoogleGenerativeAI(
                 model=settings.llm_model,
@@ -288,6 +297,8 @@ class CognitiveAgent:
                 temperature=settings.llm_temperature,
                 max_tokens=settings.llm_max_tokens,
             )
+        else:
+            raise ValueError(f"Unknown LLM provider: {settings.llm_provider}")
 
         # Get tools
         self.tools = get_all_tools()

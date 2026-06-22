@@ -80,11 +80,11 @@ reasoning: Comparing categorical regional data
         _, hint = _parse_viz_hint(output)
         self.assertEqual(hint['chart_type'], 'table')
 
-    def test_choropleth_falls_back_to_table(self):
-        """choropleth is not a valid chart type; should fall back to table."""
+    def test_choropleth_is_valid_hint(self):
+        """choropleth is a valid chart type in Phase 4."""
         output = "[VIZ_HINT]\nchart_type: choropleth\nx_axis: country\ny_axis: gdp\nreasoning: Geographic\n[/VIZ_HINT]"
         _, hint = _parse_viz_hint(output)
-        self.assertEqual(hint['chart_type'], 'table')
+        self.assertEqual(hint['chart_type'], 'choropleth')
 
     def test_missing_chart_type_returns_none(self):
         """VIZ_HINT without chart_type should return None hint."""

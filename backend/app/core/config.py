@@ -45,11 +45,34 @@ class Settings(BaseSettings):
     # ================================
     # LLM Configuration
     # ================================
-    llm_provider: str = Field(default="ollama", env="LLM_PROVIDER")  # "ollama" or "gemini"
+    # PROVIDER OPTIONS:
+    #   "ollama"  → Local model via Ollama (default for development)
+    #              Models: llama3.1:8b, qwen2.5:7b, mistral:7b, etc.
+    #              Pros: Free, private, no API key needed
+    #              Cons: Slower, less accurate, limited context window
+    #
+    #   "gemini"  → Google Gemini API (recommended for production)
+    #              Models: gemini-1.5-flash, gemini-1.5-pro, gemini-2.0-flash
+    #              Requires: GOOGLE_API_KEY environment variable
+    #              Pros: Fast, accurate, large context window
+    #              Cons: API costs, requires internet
+    #
+    #   "openai"  → OpenAI API (alternative)
+    #              Models: gpt-4o-mini, gpt-4o
+    #              Requires: OPENAI_API_KEY environment variable
+    #              Pros: Highly accurate, standard API
+    #              Cons: API costs, requires internet
+    #
+    # To switch providers, change LLM_PROVIDER and LLM_MODEL in .env:
+    #   LLM_PROVIDER=gemini
+    #   LLM_MODEL=gemini-2.0-flash
+    # ================================
+    llm_provider: str = Field(default="ollama", env="LLM_PROVIDER")  # "ollama", "gemini", or "openai"
     llm_model: str = Field(default="llama3.1:8b", env="LLM_MODEL")
     llm_temperature: float = Field(default=0.1, env="LLM_TEMPERATURE")
     llm_max_tokens: int = Field(default=2048, env="LLM_MAX_TOKENS")
     ollama_base_url: str = Field(default="http://localhost:11434", env="OLLAMA_BASE_URL")
+    openai_api_key: str = Field(default="", env="OPENAI_API_KEY")
 
     # ================================
     # FastAPI Configuration

@@ -29,7 +29,7 @@ export interface DataColumn {
 }
 
 export interface ChartRecommendation {
-  chartType: 'bar' | 'line' | 'area' | 'pie' | 'table';
+  chartType: 'bar' | 'line' | 'area' | 'pie' | 'table' | 'choropleth';
   confidence: number; // 0-100
   reasoning: string;
   metadata: {
@@ -305,12 +305,12 @@ function applyHeuristicRules(analysis: DataAnalysis, data: any[]): ChartRecommen
   // ============================================================================
   // RULE 4: Geographic/Regional Data
   // ============================================================================
-  // Rationale: Regional comparisons are best shown as bar charts
+  // Rationale: Regional comparisons are best shown as choropleth map
   if (hasGeographicDimension && numericKeys.length >= 1) {
     return {
-      chartType: 'bar',
+      chartType: 'choropleth',
       confidence: 90,
-      reasoning: '🌍 Auto-detected: Geographic/regional comparison data - showing regional metrics',
+      reasoning: '🗺️ Auto-detected: Geographic/regional data - showing choropleth map',
       metadata: {
         rowCount,
         categoryCardinality,
@@ -580,7 +580,7 @@ export function determineChartTypeWithHint(
 
   // Validate chart_type from LLM
   const validChartTypes: ChartRecommendation['chartType'][] = [
-    'bar', 'line', 'area', 'pie', 'table',
+    'bar', 'line', 'area', 'pie', 'table', 'choropleth',
   ];
   const rawChartType = llmHint.chart_type?.toLowerCase?.() ?? '';
   const llmChartType = validChartTypes.find((t) => t === rawChartType);
