@@ -1,0 +1,581 @@
+import { useState, useEffect, useRef } from 'react'
+import { Brain, Database, Send, Loader2, AlertCircle, Code, Eye, LogOut, Shield, MapPin, ClipboardList } from 'lucide-react'
+import { chatWithAgent, chatWithAgentStream, resetConversation, logout, getAuditLogs } from './api/agent'
+import LoginForm from './components/LoginForm'
+import DataVisualizerEnhanced from './components/DataVisualizerEnhanced'
+import SuggestionChips from './components/SuggestionChips'
+import './components/DataVisualizer.css'
+import './App.css'
+
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+function Typewriter({ text, speed = 5, onComplete }) {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    let index = 0;
+    setDisplayedText('');
+    const interval = setInterval(() => {
+      setDisplayedText((prev) => prev + text.charAt(index));
+      index++;
+      if (index >= text.length) {
+        clearInterval(interval);
+        if (onComplete) onComplete();
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return <span className="streaming-text">{displayedText}</span>;
+}
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'))
+  const [currentUser, setCurrentUser] = useState({
+    username: localStorage.getItem('username') || '',
+    role: localStorage.getItem('role') || '',
+    region: localStorage.getItem('region') || ''
+  })
+  
+  const [conversationId, setConversationId] = useState(generateUUID())
+  const [messages, setMessages] = useState([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [dryRun, setDryRun] = useState(false)
+  
+  const [showAuditLogs, setShowAuditLogs] = useState(false)
+  const [auditLogs, setAuditLogs] = useState([])
+  const [loadingLogs, setLoadingLogs] = useState(false)
+
+  const handleLoginSuccess = (data) => {
+    setIsAuthenticated(true)
+    setCurrentUser({
+      username: localStorage.getItem('username'),
+      role: data.role,
+      region: data.region
+    })
+    setMessages([])
+  }
+
+  const handleLogout = () => {
+    logout()
+    setIsAuthenticated(false)
+    setCurrentUser({ username: '', role: '', region: '' })
+    setMessages([])
+    setShowAuditLogs(false)
+    setConversationId(generateUUID())
+  }
+
+  const handleNewConversation = async () => {
+    try {
+      await resetConversation(conversationId)
+    } catch (e) {
+      console.error("Failed to reset session on server:", e)
+    }
+    setConversationId(generateUUID())
+    setMessages([])
+  }
+
+  const fetchAuditLogs = async () => {
+    setLoadingLogs(true)
+    try {
+      const logs = await getAuditLogs(25)
+      setAuditLogs(logs)
+    } catch (error) {
+      console.error('Error fetching audit logs:', error)
+    } finally {
+      setLoadingLogs(false)
+    }
+  }
+
+  useEffect(() => {
+    if (showAuditLogs && currentUser.role === 'admin') {
+      fetchAuditLogs()
+    }
+  }, [showAuditLogs])
+
+  const handleTypewriterComplete = (msgIdx) => {
+    setMessages(prev => {
+      const next = [...prev];
+      if (next[msgIdx]) {
+        next[msgIdx] = { ...next[msgIdx], completedTyping: true };
+      }
+      return next;
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!input.trim() || loading) return
+
+    const userMessage = { 
+      role: 'user', 
+      content: input + (dryRun ? ' [Dry Run / Plan Only]' : '') 
+    }
+    setMessages(prev => [...prev, userMessage])
+    setInput('')
+    setLoading(true)
+
+    // Add streaming placeholder message
+    setMessages(prev => [
+      ...prev,
+      {
+        role: 'assistant',
+        content: '',
+        intermediateSteps: [],
+        success: true,
+        agentRole: currentUser.role,
+        dryRun: dryRun,
+        completedTyping: false,
+        visualizationHint: null,
+        suggestions: []
+      }
+    ]);
+
+    try {
+      if (dryRun) {
+        // Dry run is non-streaming
+        const response = await chatWithAgent(input, dryRun, conversationId)
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = {
+            role: 'assistant',
+            content: response.response || response.error || response.message || '',
+            intermediateSteps: response.intermediate_steps || [],
+            success: response.success,
+            agentRole: response.role,
+            dryRun: response.dry_run,
+            completedTyping: true,
+            visualizationHint: response.visualization_hint || null,
+            suggestions: response.suggestions || []
+          };
+          return newMsgs;
+        });
+        return;
+      }
+
+      // Streaming execution
+      await chatWithAgentStream(input, conversationId, (event) => {
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          const lastMsg = { ...newMsgs[newMsgs.length - 1] };
+          
+          if (event.type === 'thought') {
+            const steps = [...(lastMsg.intermediateSteps || [])];
+            steps.push({
+              type: 'action',
+              tool: 'Thinking...',
+              log: event.content,
+              input: ''
+            });
+            lastMsg.intermediateSteps = steps;
+          } else if (event.type === 'tool_start') {
+            const steps = [...(lastMsg.intermediateSteps || [])];
+            const existingIdx = steps.findLastIndex(s => s.type === 'action' && s.tool === 'Thinking...');
+            if (existingIdx >= 0) {
+              steps[existingIdx].tool = event.tool;
+              steps[existingIdx].input = event.input;
+              steps[existingIdx].log = `Thought: Calling tool ${event.tool}\nAction: ${event.tool}\nAction Input: ${event.input}`;
+            } else {
+              steps.push({
+                type: 'action',
+                tool: event.tool,
+                input: event.input,
+                log: `Action: ${event.tool}\nAction Input: ${event.input}`
+              });
+            }
+            lastMsg.intermediateSteps = steps;
+          } else if (event.type === 'tool_result') {
+            const steps = [...(lastMsg.intermediateSteps || [])];
+            let parsedData = null;
+            try {
+              const parsed = JSON.parse(event.output);
+              if (parsed && parsed.data) {
+                parsedData = parsed.data;
+              }
+            } catch (_) {}
+
+            steps.push({
+              type: 'observation',
+              result: event.output,
+              data: parsedData
+            });
+            lastMsg.intermediateSteps = steps;
+          } else if (event.type === 'final_answer') {
+            lastMsg.content = event.content;
+          } else if (event.type === 'visualization_hint') {
+            // LLM-provided chart type hint from [VIZ_HINT] block
+            lastMsg.visualizationHint = event.hint;
+          } else if (event.type === 'suggestions') {
+            // Schema-aware follow-up suggestions
+            lastMsg.suggestions = event.suggestions;
+          } else if (event.type === 'error') {
+            lastMsg.role = 'error';
+            lastMsg.content = event.content;
+            lastMsg.success = false;
+          }
+
+          newMsgs[newMsgs.length - 1] = lastMsg;
+          return newMsgs;
+        });
+      });
+
+      // Once streaming successfully completes, check if we need to set content
+      setMessages(prev => {
+        const newMsgs = [...prev];
+        const lastMsg = newMsgs[newMsgs.length - 1];
+        if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.content) {
+          lastMsg.content = 'Plan completed.';
+        }
+        return newMsgs;
+      });
+
+    } catch (error) {
+      console.error('Submission failed:', error);
+      setMessages(prev => {
+        const newMsgs = [...prev];
+        if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].role === 'assistant') {
+          newMsgs[newMsgs.length - 1] = {
+            role: 'error',
+            content: error.message || 'An error occurred during streaming'
+          };
+        } else {
+          newMsgs.push({
+            role: 'error',
+            content: error.message || 'An error occurred during streaming'
+          });
+        }
+        return newMsgs;
+      });
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSuggestionClick = (question) => {
+    if (loading) return;
+    setInput(question);
+    // Use a short timeout to let React flush the input state update, then auto-submit
+    setTimeout(() => {
+      document.getElementById('chat-submit-btn')?.click();
+    }, 50);
+  };
+
+  const renderIntermediateSteps = (steps, visualizationHint) => {
+    if (!steps || steps.length === 0) return null
+
+    return (
+      <div className="intermediate-steps">
+        <div className="steps-header">
+          <Brain className="icon" />
+          <strong>Agent Thinking Process:</strong>
+        </div>
+        {steps.map((step, idx) => (
+          <div key={idx} className={`step step-${step.type}`}>
+            {step.type === 'action' ? (
+              <div className="step-action">
+                <div className="step-label">
+                  <Code className="icon" />
+                  Action: <strong>{step.tool}</strong>
+                </div>
+                {step.log && (
+                  <div className="step-thinking">
+                    {step.log.split('\n').filter(line =>
+                      line.includes('Thought:') || line.includes('Action:') || line.includes('Action Input:')
+                    ).map((line, i) => (
+                      <div key={i} className="thought-line">{line}</div>
+                    ))}
+                  </div>
+                )}
+                {step.input && (
+                  <div className="step-input">
+                    <code>{step.input}</code>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="step-observation">
+                <div className="step-label">
+                  <Eye className="icon" />
+                  Observation:
+                </div>
+                <div className="step-result">
+                  <pre>{step.result}</pre>
+                </div>
+                {/* Enhanced data visualization with LLM hint support */}
+                {(() => {
+                  console.log('🔍 [VISUALIZATION DEBUG] Step:', step)
+                  console.log('🔍 [VISUALIZATION DEBUG] step.data:', step.data)
+
+                  // Try to extract data from step.data or parse from step.result
+                  let visualizationData = step.data
+
+                  // If step.data is not available, try parsing the result JSON
+                  if (!visualizationData && step.result) {
+                    try {
+                      const parsed = JSON.parse(step.result)
+                      if (parsed.success && parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
+                        visualizationData = parsed.data
+                      }
+                    } catch (e) {
+                      // Not JSON, skip
+                    }
+                  }
+
+                  if (visualizationData && Array.isArray(visualizationData) && visualizationData.length > 0) {
+                    return (
+                      <DataVisualizerEnhanced
+                        stepData={visualizationData}
+                        llmVisualizationHint={visualizationHint}
+                      />
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderAuditLogs = () => {
+    return (
+      <div className="audit-logs-view">
+        <div className="audit-header">
+          <div className="audit-title">
+            <ClipboardList className="icon icon-primary" />
+            <h3>System Query Audit Trail</h3>
+          </div>
+          <button className="btn btn-primary" onClick={fetchAuditLogs} disabled={loadingLogs}>
+            {loadingLogs ? 'Refreshing...' : 'Refresh Logs'}
+          </button>
+        </div>
+        
+        {loadingLogs ? (
+          <div className="logs-loading">
+            <Loader2 className="spinner icon" />
+            Loading query audit logs...
+          </div>
+        ) : auditLogs.length === 0 ? (
+          <div className="empty-logs">No query log records found in the database.</div>
+        ) : (
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Role Context</th>
+                  <th>Action</th>
+                  <th>Executed SQL Query</th>
+                  <th>Status</th>
+                  <th>Latency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditLogs.map((log) => (
+                  <tr key={log.id} className={log.success ? 'log-row-success' : 'log-row-failed'}>
+                    <td className="time-col">{new Date(log.created_at).toLocaleString()}</td>
+                    <td>
+                      <div className="log-user-info">
+                        <span className="log-role-badge">{log.role}</span>
+                        {log.region && <span className="log-region-badge">{log.region}</span>}
+                      </div>
+                    </td>
+                    <td><span className={`log-action action-${log.action?.toLowerCase()}`}>{log.action}</span></td>
+                    <td className="sql-col">
+                      <code>{log.sql_query}</code>
+                      {log.error_message && <div className="log-error-msg">{log.error_message}</div>}
+                    </td>
+                    <td>
+                      <span className={`status-indicator ${log.success ? 'status-ok' : 'status-err'}`}>
+                        {log.success ? 'Success' : 'Failed'}
+                      </span>
+                    </td>
+                    <td>{log.execution_time_ms}ms</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Render Login Form if unauthenticated
+  if (!isAuthenticated) {
+    return <LoginForm onLoginSuccess={handleLoginSuccess} />
+  }
+
+  return (
+    <div className="app">
+      <header className="header">
+        <div className="header-content">
+          <div className="header-title">
+            <Brain className="icon icon-primary" />
+            Cognitive Database Agent
+          </div>
+          
+          <div className="user-profile-nav">
+            <div className="user-badge">
+              <Shield className="icon-primary icon-sm" />
+              <span className="badge-username">{currentUser.username}</span>
+              <span className="badge-role">{currentUser.role}</span>
+              {currentUser.region && (
+                <span className="badge-region">
+                  <MapPin className="icon-sm" />
+                  {currentUser.region}
+                </span>
+              )}
+            </div>
+
+            {currentUser.role === 'admin' && (
+              <button 
+                className={`btn btn-secondary viz-btn ${showAuditLogs ? 'active' : ''}`}
+                onClick={() => setShowAuditLogs(!showAuditLogs)}
+              >
+                <ClipboardList className="icon-sm" />
+                {showAuditLogs ? 'Chat Console' : 'Audit Logs'}
+              </button>
+            )}
+
+            <button className="btn btn-secondary" onClick={handleNewConversation}>
+              <Brain className="icon-sm" />
+              New Conversation
+            </button>
+
+            <button className="btn btn-logout" onClick={handleLogout}>
+              <LogOut className="icon-sm" />
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="main">
+        {showAuditLogs && currentUser.role === 'admin' ? (
+          renderAuditLogs()
+        ) : (
+          <div className="chat-container">
+            <div className="messages">
+              {messages.length === 0 ? (
+                <div className="empty-state">
+                  <Database className="empty-state-icon" />
+                  <h3 className="empty-state-title">Secure Natural Language Database Interface</h3>
+                  <p className="empty-state-text">Your permissions are locked to role: <strong>{currentUser.role}</strong> {currentUser.region && `(${currentUser.region} region)`}.</p>
+                  <p className="empty-state-text">Try: "Show total sales for 2023"</p>
+                  <p className="empty-state-text">Or: "List all available tables in the database"</p>
+                </div>
+              ) : (
+                messages.map((msg, idx) => {
+                  console.log(`💬 [MESSAGE ${idx}] Rendering message:`, msg)
+                  return (
+                    <div key={idx} className={`message message-${msg.role}`}>
+                      {msg.role === 'error' ? (
+                        <div className="alert alert-error">
+                          <AlertCircle className="icon" />
+                          <div>{msg.content}</div>
+                        </div>
+                      ) : msg.role === 'user' ? (
+                        <div className="message-content">
+                          {msg.content}
+                        </div>
+                      ) : (
+                        <>
+                          {msg.intermediateSteps && msg.intermediateSteps.length > 0 && renderIntermediateSteps(msg.intermediateSteps, msg.visualizationHint)}
+
+                          <div className="final-answer">
+                            <div className="answer-header">
+                              {msg.dryRun ? 'Dry Run Plan (Not Executed):' : 'Final Answer:'}
+                            </div>
+                            <div className="message-content">
+                              {idx === messages.length - 1 && !msg.completedTyping && msg.content ? (
+                                <Typewriter 
+                                  text={msg.content} 
+                                  speed={5} 
+                                  onComplete={() => handleTypewriterComplete(idx)} 
+                                />
+                              ) : (
+                                msg.content
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Suggestion chips - appear after final answer */}
+                          {msg.suggestions && msg.suggestions.length > 0 && (
+                            <SuggestionChips
+                              suggestions={msg.suggestions}
+                              onSuggestionClick={handleSuggestionClick}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })
+              )}
+
+              {loading && (!messages[messages.length - 1]?.intermediateSteps || messages[messages.length - 1]?.intermediateSteps.length === 0) && (
+                <div className="message message-assistant">
+                  <div className="message-content">
+                    <Loader2 className="icon spinner" />
+                    Thinking...
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="input-area">
+              <form onSubmit={handleSubmit} className="input-form">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask a database question..."
+                  className="input"
+                  disabled={loading}
+                />
+                
+                <div className="dry-run-control">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={dryRun}
+                      onChange={(e) => setDryRun(e.target.checked)}
+                      disabled={loading}
+                    />
+                    <span>Dry Run (Plan Only)</span>
+                  </label>
+                </div>
+
+                <button
+                  id="chat-submit-btn"
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="btn btn-primary"
+                >
+                  {loading ? (
+                    <Loader2 className="icon spinner" />
+                  ) : (
+                    <Send className="icon" />
+                  )}
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
+export default App
