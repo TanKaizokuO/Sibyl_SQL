@@ -1,4 +1,4 @@
-# Cognitive Database Agent - Final Project Report
+ # Cognitive Database Agent - Final Project Report
 ## University Course Project | Full-Stack AI Application
 
 ---
