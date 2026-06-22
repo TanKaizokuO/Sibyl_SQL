@@ -118,7 +118,7 @@ PostgreSQL (RLS Enforced)
 
 ## ⚙️ Model & Provider Configuration
 
-The agent is fully customizable. You can configure and toggle between local LLM instances and cloud providers via the `.env` configuration file.
+The Sibyl_SQL agent is fully customizable. You can configure and toggle between local LLM instances and cloud providers via the `.env` configuration file.
 
 ### Trade-offs:
 * **Development (Local)**: Ollama with local models (completely free, private, offline-capable, slower processing).
