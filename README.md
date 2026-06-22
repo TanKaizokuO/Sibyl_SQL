@@ -216,6 +216,16 @@ npm run dev
 * Frontend: [http://localhost:5173](http://localhost:5173)
 * API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
+### Database Setup
+
+Before running, ensure you have initialized the Postgres database schema and loaded the seed data:
+
+```bash
+# Seed the database
+psql -h localhost -U postgres -d cognitive_db_agent -f database/schema.sql
+psql -h localhost -U postgres -d cognitive_db_agent -f database/seed_data.sql
+```
+
 ---
 
 ## 📁 Project Structure
