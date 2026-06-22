@@ -1,0 +1,182 @@
+/**
+ * Cognitive Database Agent - Suggestion Chips Styles
+ * ===================================================
+ * Premium glassmorphism-inspired suggestion chip component.
+ * Each chip is a pill with hover scale + glow animation.
+ * Category-specific accent colours distinguish chip types at a glance.
+ */
+
+/* ===========================================================================
+   Container
+   =========================================================================== */
+.suggestion-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: suggestionFadeIn 0.4s ease both;
+}
+
+@keyframes suggestionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Label row */
+.suggestion-chips__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(165, 180, 252, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.suggestion-chips__label-icon {
+  font-size: 0.9rem;
+}
+
+/* Chip row */
+.suggestion-chips__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+
+/* ===========================================================================
+   Individual Chip
+   =========================================================================== */
+.suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 10px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: left;
+  line-height: 1.3;
+  max-width: 340px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  backdrop-filter: blur(4px);
+}
+
+.suggestion-chip:hover {
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(99, 102, 241, 0.55);
+  transform: scale(1.04) translateY(-1px);
+  box-shadow:
+    0 4px 14px rgba(99, 102, 241, 0.3),
+    0 0 0 1px rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+}
+
+.suggestion-chip:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Icon span */
+.suggestion-chip__icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Text span */
+.suggestion-chip__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ===========================================================================
+   Category-specific accent overrides
+   =========================================================================== */
+
+/* drill-down → indigo (default) */
+.suggestion-chip--drill-down {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+}
+.suggestion-chip--drill-down:hover {
+  background: rgba(99, 102, 241, 0.28);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+/* compare → amber */
+.suggestion-chip--compare {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #fcd34d;
+}
+.suggestion-chip--compare:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  color: #fde68a;
+}
+
+/* trend → emerald */
+.suggestion-chip--trend {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+}
+.suggestion-chip--trend:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+}
+
+/* filter → rose */
+.suggestion-chip--filter {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.25);
+  color: #fda4af;
+}
+.suggestion-chip--filter:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.5);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.25);
+  color: #fecdd3;
+}
+
+
+/* ===========================================================================
+   AI reasoning badge accent (used in DataVisualizerEnhanced)
+   =========================================================================== */
+.viz-reasoning-badge--ai {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(139, 92, 246, 0.1)
+  ) !important;
+}
+
+.viz-reasoning-badge--ai .confidence-pill {
+  background: rgba(99, 102, 241, 0.3) !important;
+  color: #c7d2fe !important;
+}
