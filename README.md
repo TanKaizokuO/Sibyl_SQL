@@ -8,7 +8,7 @@
 
 ## 🚀 Overview
 
-**Cognitive Database Agent** is a full-stack AI application that enables users to interact with a PostgreSQL database using plain English, while enforcing **enterprise-grade security** through **Row-Level Security (RLS)**.
+**Sibyl_SQL** is a full-stack AI application that enables users to interact with a PostgreSQL database using plain English, while enforcing **enterprise-grade security** through **Row-Level Security (RLS)**.
 
 Unlike traditional AI database tools that rely on application-level permission checks, this system enforces access control **directly at the database kernel level**, making privilege escalation **cryptographically and logically impossible**.
 
