@@ -1,0 +1,137 @@
+version: "3.9"
+
+services:
+  # ================================
+  # PostgreSQL with pgvector
+  # ================================
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: neurodb-postgres
+    environment:
+      POSTGRES_DB: cognitive_db_agent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-neurodb_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d  # Auto-run SQL files on first start
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cognitive_db_agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - neurodb-network
+
+  # ================================
+  # Ollama LLM Server
+  # ================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: neurodb-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - neurodb-network
+    # GPU support (uncomment if NVIDIA GPU available):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # ================================
+  # Model Loader (one-shot init container)
+  # ================================
+  ollama-init:
+    image: curlimages/curl:latest
+    container_name: neurodb-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        echo 'Pulling LLM model...' &&
+        curl -s http://ollama:11434/api/pull -d '{\"name\": \"llama3.1:8b\"}' &&
+        echo 'Model ready!'
+      "
+    networks:
+      - neurodb-network
+
+  # ================================
+  # FastAPI Backend
+  # ================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: neurodb-backend
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=cognitive_db_agent
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-neurodb_dev_password}
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
+      - LLM_MODEL=${LLM_MODEL:-llama3.1:8b}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-not-needed-for-ollama}
+      - SECRET_KEY=${SECRET_KEY:-docker-dev-secret-key-change-in-production}
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    networks:
+      - neurodb-network
+    restart: unless-stopped
+
+  # ================================
+  # React Frontend (Vite dev server)
+  # ================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: neurodb-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - neurodb-network
+    restart: unless-stopped
+
+# ================================
+# Volumes
+# ================================
+volumes:
+  postgres_data:
+    name: neurodb-postgres-data
+  ollama_data:
+    name: neurodb-ollama-data
+
+# ================================
+# Networks
+# ================================
+networks:
+  neurodb-network:
+    name: neurodb-network
+    driver: bridge

@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  # ================================
+  # PostgreSQL overrides
+  # ================================
+  postgres:
+    ports: []  # Do not expose postgres port to host in production
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  # ================================
+  # Backend overrides
+  # ================================
+  backend:
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=WARNING
+      - DB_PASSWORD=${DB_PASSWORD}
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  # ================================
+  # Frontend overrides
+  # ================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
