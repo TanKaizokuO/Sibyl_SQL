@@ -124,7 +124,7 @@ The Sibyl_SQL agent is fully customizable. You can configure and toggle between 
 * **Production (Cloud)**: Google Gemini or OpenAI APIs (highly accurate, fast inference, supports larger context windows).
 
 #### Switching Providers:
-To switch between providers, modify the `LLM_PROVIDER` and `LLM_MODEL` variables in your `.env` file:
+You can switch providers with a simple one-line switch in your environment configuration. To switch between providers, modify the `LLM_PROVIDER` and `LLM_MODEL` variables in your `.env` file:
 
 ```bash
 # To run local Ollama
@@ -189,13 +189,42 @@ USING (region = current_setting('app.current_region'));
 
 ## 🚀 Getting Started
 
+### 🐳 Quick Start (Docker Compose)
+
+The easiest way to launch the entire ecosystem (database, local LLM, backend, and frontend) is using Docker Compose:
+
+```bash
+# Start all services (Postgres + Ollama + Backend + Frontend)
+docker compose up -d
+
+# Wait for Ollama to download the model (~5 min first time)
+docker compose logs -f ollama-init
+
+# Ingest database schema context into RAG (one-time setup)
+curl -X POST http://localhost:8000/api/ingest
+
+# Open the application
+open http://localhost:5173
+```
+
+### Services Mapping
+| Service  | URL                      | Description          |
+|----------|--------------------------|----------------------|
+| Frontend | http://localhost:5173     | React Web App        |
+| Backend  | http://localhost:8000     | FastAPI Server       |
+| API Docs | http://localhost:8000/docs| Interactive API Docs |
+| Postgres | localhost:5432           | RLS PostgreSQL DB    |
+| Ollama   | http://localhost:11434    | Local LLM Instance   |
+
+---
+
+### Run Locally (Manual Alternative)
+
 ### Prerequisites
 * Node.js 18+
 * Python 3.11+
 * PostgreSQL 14+
 * Ollama / Gemini API Key / OpenAI API Key
-
-### Run Locally
 
 ```bash
 # Backend
