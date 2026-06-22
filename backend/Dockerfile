@@ -11,13 +11,12 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
+# Install CPU-only PyTorch first (avoids multi-GB CUDA/NVIDIA downloads)
+RUN pip install --no-cache-dir torch==2.2.0 --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
-
-# Create .env file for Docker (overridden by docker-compose environment)
-RUN echo "DB_PASSWORD=sibyl_sql_dev_password" > .env
 
 # Expose port
 EXPOSE 8000
