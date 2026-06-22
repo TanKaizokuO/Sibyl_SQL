@@ -1,0 +1,80 @@
+# ================================
+# Cognitive Database Agent - Python Dependencies
+# ================================
+
+# ================================
+# Core Framework
+# ================================
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic>=2.7.4
+pydantic-settings==2.1.0
+
+# ================================
+# LangChain & LLM Integration
+# ================================
+langchain==0.1.6
+langchain-google-genai==0.0.6
+langchain-community==0.0.20
+google-generativeai==0.3.2
+
+# ================================
+# Database & Vector Store
+# ================================
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.25
+pgvector==0.2.4
+asyncpg==0.29.0
+
+# ================================
+# Vector Embeddings & Similarity
+# ================================
+numpy==1.26.4
+sentence-transformers==2.5.1
+transformers==4.37.2
+torch==2.2.0
+scikit-learn==1.3.2
+
+# ================================
+# Utilities
+# ================================
+python-dotenv==1.0.1
+python-multipart==0.0.6
+
+# ================================
+# API & Web
+# ================================
+httpx==0.26.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# ================================
+# Data Processing
+# ================================
+pandas>=2.1.0
+
+# ================================
+# Logging & Monitoring
+# ================================
+loguru==0.7.2
+
+# ================================
+# Testing
+# ================================
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+httpx==0.26.0
+
+# ================================
+# Development Tools
+# ================================
+black==23.12.1
+flake8==7.0.0
+isort==5.13.2
+mypy==1.8.0
+
+# ================================
+# Type Hints
+# ================================
+types-psycopg2==2.9.21.20240201
