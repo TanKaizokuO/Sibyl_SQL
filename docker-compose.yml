@@ -37,30 +37,24 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: sibyl-sql-backend
+    network_mode: host
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=127.0.0.1
       - DB_PORT=5432
       - DB_NAME=cognitive_db_agent
       - DB_USER=postgres
       - DB_PASSWORD=${DB_PASSWORD:-sibyl_sql_dev_password}
       - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
-      - LLM_MODEL=${LLM_MODEL:-llama3.1:8b}
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - LLM_MODEL=${LLM_MODEL:-gemma4:26b-a4b-it-qat}
+      - OLLAMA_BASE_URL=http://127.0.0.1:11434
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-not-needed-for-ollama}
       - SECRET_KEY=${SECRET_KEY:-docker-dev-secret-key-change-in-production}
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
       - ENVIRONMENT=development
       - LOG_LEVEL=INFO
-    ports:
-      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - sibyl-sql-network
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  # Allows container to reach host's Ollama on Linux
 
   # ================================
   frontend:
