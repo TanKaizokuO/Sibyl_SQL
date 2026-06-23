@@ -23,10 +23,13 @@ The result is a **secure, autonomous, explainable AI agent** capable of querying
 * Supports complex, multi-step operations
 * Transparent reasoning using the **ReAct agent pattern**
 
-### 💬 Conversational Session Memory
+### 💬 Conversational Session Memory & Local Storage Persistence
 * State-managed active sessions mapped by unique conversation UUIDs
 * High-fidelity context tracking using a `ConversationBufferWindowMemory` window size of `k=10`
 * Session cleanup routines to release inactive agent resources automatically
+* Persistent client-side session history caching using `localStorage`
+* Interactive sidebar UI drawer to view, switch, rename, or delete past conversations
+* Real-time toast notifications for user interactions and success/failure alerts
 
 ### ⚡ Real-Time Streaming Responses (SSE)
 * Server-Sent Events (SSE) stream reasoning paths, database tool activities, and execution states to the client as they occur
