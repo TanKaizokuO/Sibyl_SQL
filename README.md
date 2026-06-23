@@ -69,6 +69,8 @@ The result is a **secure, autonomous, explainable AI agent** capable of querying
 
 ## 🏗️ System Architecture
 
+![Sybil-SQL System Architecture](./Arch.png)
+
 ```text
 Frontend (React + Vite)
 │
