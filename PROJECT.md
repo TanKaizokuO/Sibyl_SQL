@@ -1,7 +1,7 @@
-# Sibyl_SQL
+# Sybil-SQL
 
 ## Overview
-**Vision/Goal:** Sibyl_SQL is a full-stack AI application that enables users to query, analyze, and visualize a PostgreSQL database using plain English, enforcing unforgeable security through Row-Level Security (RLS) directly at the database kernel level.
+**Vision/Goal:** Sybil-SQL is a full-stack AI application that enables users to query, analyze, and visualize a PostgreSQL database using plain English, enforcing unforgeable security through Row-Level Security (RLS) directly at the database kernel level.
 
 **Current Status:** Active Development
 

@@ -1,4 +1,4 @@
-# 🧠 Sibyl_SQL
+# 🧠 Sybil-SQL
 
 ### AI-Powered Conversational Database System with Unforgeable Security
 
@@ -8,7 +8,7 @@
 
 ## 🚀 Overview
 
-**Sibyl_SQL** is a full-stack AI application that enables users to interact with a PostgreSQL database using plain English, while enforcing **enterprise-grade security** through **Row-Level Security (RLS)**.
+**Sybil-SQL** is a full-stack AI application that enables users to interact with a PostgreSQL database using plain English, while enforcing **enterprise-grade security** through **Row-Level Security (RLS)**.
 
 Unlike traditional AI database tools that rely on application-level permission checks, this system enforces access control **directly at the database kernel level**, making privilege escalation **cryptographically and logically impossible**.
 
@@ -77,7 +77,7 @@ Frontend (React + Vite)
 ▼
 Backend (FastAPI)
 │
-│  Sibyl_SQL Agent (LangChain ReAct)
+│  Sybil-SQL Agent (LangChain ReAct)
 │  ├── DB Tools (role-aware)
 │  ├── RAG Retriever (pgvector)
 │  ├── Suggestion Engine (Schema Context + Query Analyzer)
@@ -120,7 +120,7 @@ PostgreSQL (RLS Enforced)
 
 ## ⚙️ Model & Provider Configuration
 
-The Sibyl_SQL agent is fully customizable. You can configure and toggle between local LLM instances and cloud providers via the `.env` configuration file.
+The Sybil-SQL agent is fully customizable. You can configure and toggle between local LLM instances and cloud providers via the `.env` configuration file.
 
 ### Provider Details & Settings:
 * **Google Gemini (Recommended & Configured)**: Leverages Gemini models for fast, accurate generation and reasoning. Uses the Gemini Embeddings API (`models/embedding-001`) with 768 dimensions for pgvector similarity searches.
@@ -271,7 +271,7 @@ PYTHONPATH=. python3 backend/scripts/seed_embeddings.py
 
 ```text
 backend/
- ├── agent/        # Sibyl_SQL agent, tools, suggestions & session manager
+ ├── agent/        # Sybil-SQL agent, tools, suggestions & session manager
  ├── api/          # FastAPI routes and SSE endpoints
  ├── db/           # PostgreSQL connection
  └── core/         # Config & settings
