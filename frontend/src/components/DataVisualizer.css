@@ -9,12 +9,12 @@
    =========================================================================== */
 
 .data-visualizer-enhanced {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   overflow: hidden;
   margin: 20px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .data-visualizer-loading {
@@ -92,8 +92,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .viz-title {
@@ -102,7 +102,7 @@
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: #e2e8f0;
 }
 
 .viz-title .icon {
@@ -116,10 +116,10 @@
   display: flex;
   gap: 4px;
   align-items: center;
-  background: #ffffff;
+  background: transparent;
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .viz-btn {
@@ -128,7 +128,7 @@
   gap: 6px;
   padding: 8px 12px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -138,13 +138,15 @@
 }
 
 .viz-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
 }
 
 .viz-btn.active {
-  background: #8b5cf6;
-  color: #ffffff;
+  background: var(--bg-main, #0f172a);
+  color: var(--neon-cyan, #00f0ff);
+  border: 1px solid var(--neon-cyan, #00f0ff);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
 }
 
 .viz-btn .icon-sm {
@@ -155,21 +157,21 @@
 .viz-divider {
   width: 1px;
   height: 20px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
   margin: 0 4px;
 }
 
 /* Chart Content */
 .viz-content {
   padding: 24px;
-  background: #ffffff;
+  background: transparent;
 }
 
 /* Table Styles */
 .data-table-container {
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .data-table-wrapper {
@@ -185,7 +187,7 @@
 }
 
 .data-table thead {
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -195,19 +197,19 @@
   text-align: left;
   padding: 12px 16px;
   font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
+  color: #e2e8f0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
 }
 
 .data-table td {
   padding: 12px 16px;
-  color: #6b7280;
-  border-bottom: 1px solid #f3f4f6;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .data-table tbody tr:hover {
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .table-footer {
@@ -215,17 +217,17 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 13px;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 /* Visualizer Footer */
 .viz-footer {
   padding: 16px 24px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .viz-metadata {
@@ -234,7 +236,7 @@
   flex-wrap: wrap;
   gap: 12px;
   font-size: 13px;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .metadata-item {
@@ -244,11 +246,11 @@
 
 .metadata-item strong {
   font-weight: 600;
-  color: #374151;
+  color: #e2e8f0;
 }
 
 .metadata-divider {
-  color: #d1d5db;
+  color: rgba(255, 255, 255, 0.2);
 }
 
 .metadata-badge {

@@ -124,14 +124,15 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
   const renderBarChart = () => (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis dataKey={xKey} stroke="#6b7280" />
-        <YAxis stroke="#6b7280" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+        <XAxis dataKey={xKey} stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
+        <YAxis stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
+            backgroundColor: '#0f172a',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '8px',
+            color: '#e2e8f0'
           }}
         />
         <Legend />
@@ -145,14 +146,15 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
   const renderLineChart = () => (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis dataKey={xKey} stroke="#6b7280" />
-        <YAxis stroke="#6b7280" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+        <XAxis dataKey={xKey} stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
+        <YAxis stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
+            backgroundColor: '#0f172a',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '8px',
+            color: '#e2e8f0'
           }}
         />
         <Legend />
@@ -182,14 +184,15 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
             </linearGradient>
           ))}
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis dataKey={xKey} stroke="#6b7280" />
-        <YAxis stroke="#6b7280" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+        <XAxis dataKey={xKey} stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
+        <YAxis stroke="rgba(255, 255, 255, 0.1)" tick={{ fill: '#e2e8f0' }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
+            backgroundColor: '#0f172a',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '8px',
+            color: '#e2e8f0'
           }}
         />
         <Legend />
@@ -233,9 +236,10 @@ const DataVisualizerEnhanced: React.FC<DataVisualizerProps> = ({ data, stepData,
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
+              backgroundColor: '#0f172a',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '8px',
+              color: '#e2e8f0'
             }}
           />
           <Legend />
