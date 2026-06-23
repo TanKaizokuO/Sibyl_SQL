@@ -187,6 +187,11 @@ Before any SQL statement is sent to the database, it undergoes rigorous inspecti
 - **AI Recommendation Badge:** Shows details about the selection reason and matching confidence.
 - **Choropleth Visuals:** Map rendering via `react-simple-maps` with smooth gradient coloring.
 
+### 9. Persistent Client-Side Conversation History
+- **Isolation by User:** Scopes local storage keys using the format `sybilsql_chats_{username}`. This ensures that when different users (e.g. Viewer vs Admin) log in on the same browser, their chat histories remain completely isolated.
+- **Auto-Title Generation:** Automatically detects substantive user prompts to title conversations, falling back to dates or first assistant responses.
+- **LRU Pruning:** Restricts local storage footprint by evicting older conversations when exceeding a maximum count (default 20), avoiding browser local storage quota exceptions.
+
 ---
 
 ## 🏗️ Detailed REST API Endpoints
