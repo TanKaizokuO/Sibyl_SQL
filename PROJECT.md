@@ -5,7 +5,7 @@
 
 ## 📋 Executive Summary
 
-**Project Name:** Cognitive Database Agent (also referred to as **Sibyl SQL / NeuroDB**)  
+**Project Name:** Cognitive Database Agent (also referred to as **Sibyl SQL / SybilSQL**)  
 **Type:** Secure AI-Powered Database Management System with Row-Level Security (RLS) & Compliance Auditing  
 **Tech Stack:** React 19 + Vite 7 (TypeScript), FastAPI, PostgreSQL 16 (pgvector), LangChain Core, Ollama/Gemini/OpenAI  
 **Completion Status:** ✅ 100% Complete & Production-Ready  
@@ -145,7 +145,7 @@ CREATE POLICY viewer_no_writes ON sales_data
 ```
 
 ### 3. Query Validator & Rate Limiter
-Before any SQL statement is sent to the database, it undergoes rigorous inspection in [query_validator.py](file:///home/tankaizokuo/Code/NeuroDB/backend/app/agent/query_validator.py):
+Before any SQL statement is sent to the database, it undergoes rigorous inspection in [query_validator.py](file:///home/tankaizokuo/Code/SybilSQL/backend/app/agent/query_validator.py):
 - **Blocklist Filtering:** Instantly rejects queries containing dangerous keywords (`DROP`, `ALTER`, `TRUNCATE`, `CREATE`, `GRANT`, `REVOKE`, `COPY`, `EXECUTE`, `SET ROLE`).
 - **Stacked Query Block:** Blocks statements separated by semicolons to prevent multiple command injections.
 - **Nesting Guard:** Prevents resource exhaustion by limiting subquery recursion depth to a maximum of 3 levels.
@@ -156,7 +156,7 @@ Before any SQL statement is sent to the database, it undergoes rigorous inspecti
 
 ### 4. Real-Time SSE (Server-Sent Events) Streaming
 - Real-time interaction endpoints `/api/chat/stream` stream intermediate agent activities.
-- [StreamingCallback](file:///home/tankaizokuo/Code/NeuroDB/backend/app/agent/cognitive_agent.py#L200-L243) captures LangChain execution steps and routes them to an async thread queue.
+- [StreamingCallback](file:///home/tankaizokuo/Code/SybilSQL/backend/app/agent/cognitive_agent.py#L200-L243) captures LangChain execution steps and routes them to an async thread queue.
 - Generates precise `thought`, `tool_start`, `tool_result`, `visualization_hint`, `suggestions`, and `final_answer` event states, showing the inner planning of the ReAct brain immediately to the user's browser console sidebar.
 
 ### 5. Dry-Run Verification Mode
@@ -179,7 +179,7 @@ Before any SQL statement is sent to the database, it undergoes rigorous inspecti
   - `filter` (constrain attributes)
 
 ### 8. Intelligent Data Visualization
-- **Heuristic Engine** in [AutoChartLogic.ts](file:///home/tankaizokuo/Code/NeuroDB/frontend/src/utils/AutoChartLogic.ts) detects chart formatting based on columns and cardinality:
+- **Heuristic Engine** in [AutoChartLogic.ts](file:///home/tankaizokuo/Code/SybilSQL/frontend/src/utils/AutoChartLogic.ts) detects chart formatting based on columns and cardinality:
   - **Temporal Column:** Suggests `Line` or `Area` plots.
   - **Geographic Data:** Suggests `Choropleth Map` or `Bar` views.
   - **Part-To-Whole Ratio:** Suggests `Pie` graphs (limit 8 categories).
@@ -226,7 +226,7 @@ The FastAPI router exposes a robust REST specification:
 A critical safety feature of the Cognitive Database Agent is its **Separation of Privilege** design. The application backend uses two distinct connection contexts to enforce query constraints while maintaining audit integrity:
 
 1. **Restricted Executions:** User queries run on connections that impersonate the client's database role (`db_viewer`, `db_manager`, `db_admin`). RLS policies are applied at the core engine level, and modification operations are checked inside the transactions.
-2. **Privileged Auditing:** The auditing module ([audit.py](file:///home/tankaizokuo/Code/NeuroDB/backend/app/db/audit.py)) uses the administrative pool credentials to record query transactions in the `audit_log` table.
+2. **Privileged Auditing:** The auditing module ([audit.py](file:///home/tankaizokuo/Code/SybilSQL/backend/app/db/audit.py)) uses the administrative pool credentials to record query transactions in the `audit_log` table.
 3. **Transaction Independence:** Even if a user's transaction is rolled back or aborted due to a security violation, the auditing system executes the logging record in a separate transaction, ensuring that permission failures and query warnings are permanently recorded.
 
 ---
@@ -234,7 +234,7 @@ A critical safety feature of the Cognitive Database Agent is its **Separation of
 ## 📦 Workspace Project Structure
 
 ```
-NeuroDB/
+SybilSQL/
 ├── backend/
 │   ├── app/
 │   │   ├── agent/
@@ -344,7 +344,7 @@ NeuroDB/
 ## 🧪 Testing & Validation Results
 
 ### Security and RLS Integrity Verification
-- Verified security assertions using [05_test_security.sql](file:///home/tankaizokuo/Code/NeuroDB/database/05_test_security.sql):
+- Verified security assertions using [05_test_security.sql](file:///home/tankaizokuo/Code/SybilSQL/database/05_test_security.sql):
   - **Viewer Writes Test:** Verified that all modification statements (`INSERT`, `UPDATE`, `DELETE`) by a viewer are blocked.
   - **Manager Leakage Test:** Confirmed that managers attempting to access data outside their assigned regions receive empty datasets.
   - **Admin Access Test:** Verified that administrators bypass RLS checks to see the complete dataset.
