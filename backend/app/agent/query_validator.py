@@ -65,16 +65,19 @@ class QueryValidator:
     def check_subquery_depth(query: str) -> int:
         """
         Determine the maximum nesting depth of subqueries (parentheses containing SELECT).
+
+        This tracks nesting levels to prevent complex, recursive queries that can cause
+        database denial of service or stack overflows in the query planner.
         """
-        query_upper = query.upper()
-        max_depth = 0
-        current_depth = 0
-        stack = []
+        query_upper: str = query.upper()
+        max_depth: int = 0
+        current_depth: int = 0
+        stack: List[bool] = []
 
         for i, char in enumerate(query_upper):
             if char == "(":
                 # Check if this parenthesis starts a subquery
-                remainder = query_upper[i + 1 :].strip()
+                remainder: str = query_upper[i + 1 :].strip()
                 if remainder.startswith("SELECT"):
                     current_depth += 1
                     max_depth = max(max_depth, current_depth)
@@ -83,7 +86,7 @@ class QueryValidator:
                     stack.append(False)
             elif char == ")":
                 if stack:
-                    is_select = stack.pop()
+                    is_select: bool = stack.pop()
                     if is_select:
                         current_depth -= 1
 
