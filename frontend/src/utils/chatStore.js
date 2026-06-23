@@ -5,6 +5,10 @@
 
 /**
  * Safely decodes a JWT token using base64url parsing to extract the username (sub).
+ * JWT is structured as Header.Payload.Signature. The second section (payload) contains
+ * user claim objects including 'sub' (subject/username) and 'role'. This helper translates
+ * base64url characters back to standard base64 for browser atob() decoding.
+ *
  * @returns {string|null} The username or null if invalid/missing.
  */
 export function getTokenUsername() {
@@ -32,6 +36,13 @@ export function getTokenUsername() {
   }
 }
 
+/**
+ * Retrieves a user-scoped storage key based on the currently logged-in user.
+ * This isolation ensures that different user accounts (e.g. north_manager vs admin_user)
+ * have completely isolated conversation histories, preventing local privilege leaking.
+ *
+ * @returns {string|null} The storage key or null.
+ */
 function getStorageKey() {
   const username = getTokenUsername();
   return username ? `sybilsql_chats_${username}` : null;
