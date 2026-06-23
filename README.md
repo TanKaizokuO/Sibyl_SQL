@@ -122,24 +122,28 @@ PostgreSQL (RLS Enforced)
 
 The Sibyl_SQL agent is fully customizable. You can configure and toggle between local LLM instances and cloud providers via the `.env` configuration file.
 
-### Trade-offs:
-* **Development (Local)**: Ollama with local models (completely free, private, offline-capable, slower processing).
-* **Production (Cloud)**: Google Gemini or OpenAI APIs (highly accurate, fast inference, supports larger context windows).
+### Provider Details & Settings:
+* **Google Gemini (Recommended & Configured)**: Leverages Gemini models for fast, accurate generation and reasoning. Uses the Gemini Embeddings API (`models/embedding-001`) with 768 dimensions for pgvector similarity searches.
+* **Ollama (Local)**: Runs open-weights models (e.g., `qwen2.5:7b` or `gemma4`) on your local hardware for zero cost and offline capability.
+* **OpenAI (Cloud)**: Uses `gpt-4o` or `gpt-4o-mini` with strict JSON constraints.
 
 #### Switching Providers:
-You can switch providers with a simple one-line switch in your environment configuration. To switch between providers, modify the `LLM_PROVIDER` and `LLM_MODEL` variables in your `.env` file:
+To modify the active models or switch provider targets, update the configuration keys in your `.env` file:
 
 ```bash
-# To run local Ollama
-LLM_PROVIDER=ollama
-LLM_MODEL=llama3.1:8b
-
-# To run Google Gemini (Recommended for production)
+# Google Gemini (Default config)
 LLM_PROVIDER=gemini
-LLM_MODEL=gemini-2.0-flash
+LLM_MODEL=gemini-flash-latest
 GOOGLE_API_KEY=your_gemini_api_key_here
+EMBEDDING_MODEL=models/embedding-001
+EMBEDDING_DIMENSION=768
 
-# To run OpenAI
+# Local Ollama Integration
+LLM_PROVIDER=ollama
+LLM_MODEL=qwen2.5:7b
+OLLAMA_BASE_URL=http://localhost:11434
+
+# OpenAI Integration
 LLM_PROVIDER=openai
 LLM_MODEL=gpt-4o-mini
 OPENAI_API_KEY=your_openai_api_key_here
