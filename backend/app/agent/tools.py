@@ -250,6 +250,11 @@ def run_secure_query_func(query: str) -> str:
     except Exception as e:
         error_msg = str(e)
         logger.error(f"Query execution failed: {error_msg}")
+        
+        # Check if it's a permission error
+        if "permission denied" in error_msg.lower() or "policy" in error_msg.lower():
+            error_msg = f"Access denied: Your role ({role}) does not have permission to query this data. This is enforced by Row-Level Security policies. Do NOT retry the query or attempt other debugging queries. Stop and report this limitation to the user."
+
         return json.dumps(
             {
                 "success": False,

@@ -29,10 +29,22 @@
 -- These roles are used for role impersonation via SET LOCAL ROLE
 -- The agent will switch to these roles before executing queries
 
--- Drop roles if they exist
-DROP ROLE IF EXISTS db_admin;
-DROP ROLE IF EXISTS db_manager;
-DROP ROLE IF EXISTS db_viewer;
+-- Revoke privileges and drop roles if they exist
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'db_admin') THEN
+        EXECUTE 'DROP OWNED BY db_admin;';
+        EXECUTE 'DROP ROLE db_admin;';
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'db_manager') THEN
+        EXECUTE 'DROP OWNED BY db_manager;';
+        EXECUTE 'DROP ROLE db_manager;';
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'db_viewer') THEN
+        EXECUTE 'DROP OWNED BY db_viewer;';
+        EXECUTE 'DROP ROLE db_viewer;';
+    END IF;
+END $$;
 
 -- Create roles with appropriate connection privileges
 CREATE ROLE db_admin;

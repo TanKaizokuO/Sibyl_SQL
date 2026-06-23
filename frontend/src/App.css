@@ -7,10 +7,10 @@
 
 /* Header */
 .header {
-  background: white;
-  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--neon-cyan);
   padding: 1rem 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
 }
 
 .header-content {
@@ -153,6 +153,31 @@
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+}
+
+.sidebar-terminal .empty-logs {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.sidebar-terminal .empty-logs::before {
+  content: "> ";
+  color: var(--neon-cyan);
+  margin-right: 0.5rem;
+}
+
+.sidebar-terminal .empty-logs::after {
+  content: "█";
+  color: var(--neon-cyan);
+  margin-left: 0.25rem;
+  animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* Messages */
@@ -505,14 +530,15 @@
 .final-answer {
   margin-top: 1rem;
   padding: 1rem;
-  background: #f0f9ff;
+  background: rgba(0, 240, 255, 0.05);
   border-radius: var(--radius);
-  border-left: 4px solid var(--success);
+  border: 1px solid var(--border-glow);
+  border-left: 4px solid var(--neon-cyan);
 }
 
 .answer-header {
   font-weight: 700;
-  color: var(--success);
+  color: var(--neon-cyan);
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -520,7 +546,7 @@
 }
 
 .final-answer .message-content {
-  color: var(--text);
+  color: #e2e8f0;
   line-height: 1.6;
 }
 
@@ -737,6 +763,34 @@
   background: #fecaca !important;
 }
 
+/* Ghost Buttons */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  color: var(--text-secondary);
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4), inset 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+.btn-ghost.btn-logout {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glow);
+}
+
+.btn-ghost.btn-logout:hover:not(:disabled) {
+  background: rgba(255, 0, 85, 0.05) !important;
+  color: #ff003c !important;
+  border-color: #ff003c !important;
+  box-shadow: 0 0 8px rgba(255, 0, 60, 0.4), inset 0 0 8px rgba(255, 0, 60, 0.2);
+}
+
 /* Dry Run Input Toggle */
 .dry-run-control {
   display: flex;
@@ -744,7 +798,7 @@
   padding: 0 0.5rem;
 }
 
-.checkbox-label {
+.cyber-checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -754,10 +808,33 @@
   user-select: none;
 }
 
-.checkbox-label input[type="checkbox"] {
+.cyber-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.cyber-checkbox {
   width: 16px;
   height: 16px;
-  cursor: pointer;
+  border: 1px solid var(--border-glow);
+  background: var(--bg-main);
+  position: relative;
+  transition: all 0.15s ease-in-out;
+  display: inline-block;
+}
+
+.cyber-checkbox-label input[type="checkbox"]:focus-visible ~ .cyber-checkbox {
+  outline: 2px dashed var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+.cyber-checkbox-label input[type="checkbox"]:checked ~ .cyber-checkbox {
+  background: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 /* Audit Logs Panel */

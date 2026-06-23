@@ -306,7 +306,6 @@ function App() {
     if (allSteps.length === 0) {
       return (
         <div className="empty-logs" style={{ padding: '2rem 1rem', fontSize: '0.85rem' }}>
-          <Loader2 className="spinner icon-sm" style={{ marginRight: '0.5rem' }} />
           Awaiting cognitive input...
         </div>
       );
@@ -449,7 +448,7 @@ function App() {
 
             {currentUser.role === 'admin' && (
               <button 
-                className={`btn btn-secondary viz-btn ${showAuditLogs ? 'active' : ''}`}
+                className={`btn btn-ghost viz-btn ${showAuditLogs ? 'active' : ''}`}
                 onClick={() => setShowAuditLogs(!showAuditLogs)}
               >
                 <ClipboardList className="icon-sm" />
@@ -457,12 +456,12 @@ function App() {
               </button>
             )}
 
-            <button className="btn btn-secondary" onClick={handleNewConversation}>
+            <button className="btn btn-ghost" onClick={handleNewConversation}>
               <Brain className="icon-sm" />
               New Conversation
             </button>
 
-            <button className="btn btn-logout" onClick={handleLogout}>
+            <button className="btn btn-ghost btn-logout" onClick={handleLogout}>
               <LogOut className="icon-sm" />
               Logout
             </button>
@@ -509,22 +508,31 @@ function App() {
                             />
                           ))}
 
-                          <div className="final-answer">
-                            <div className="answer-header">
-                              {msg.dryRun ? 'Dry Run Plan (Not Executed):' : 'Final Answer:'}
+                          {idx === messages.length - 1 && loading && !msg.content && (
+                            <div className="message-content thinking-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                              <Loader2 className="icon spinner icon-sm" />
+                              Processing cognitive input...
                             </div>
-                            <div className="message-content">
-                              {idx === messages.length - 1 && !msg.completedTyping && msg.content ? (
-                                <Typewriter 
-                                  text={msg.content} 
-                                  speed={5} 
-                                  onComplete={() => handleTypewriterComplete(idx)} 
-                                />
-                              ) : (
-                                msg.content
-                              )}
+                          )}
+
+                          {msg.content && (
+                            <div className="final-answer">
+                              <div className="answer-header">
+                                {msg.dryRun ? 'Dry Run Plan (Not Executed):' : 'Final Answer:'}
+                              </div>
+                              <div className="message-content">
+                                {idx === messages.length - 1 && !msg.completedTyping && msg.content ? (
+                                  <Typewriter 
+                                    text={msg.content} 
+                                    speed={5} 
+                                    onComplete={() => handleTypewriterComplete(idx)} 
+                                  />
+                                ) : (
+                                  msg.content
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Suggestion chips - appear after final answer */}
                           {msg.suggestions && msg.suggestions.length > 0 && (
@@ -540,14 +548,7 @@ function App() {
                 })
               )}
 
-              {loading && (!messages[messages.length - 1]?.intermediateSteps || messages[messages.length - 1]?.intermediateSteps.length === 0) && (
-                <div className="message message-assistant">
-                  <div className="message-content">
-                    <Loader2 className="icon spinner" />
-                    Thinking...
-                  </div>
-                </div>
-              )}
+
             </div>
 
             <div className="input-area">
@@ -562,13 +563,14 @@ function App() {
                 />
                 
                 <div className="dry-run-control">
-                  <label className="checkbox-label">
+                  <label className="cyber-checkbox-label">
                     <input
                       type="checkbox"
                       checked={dryRun}
                       onChange={(e) => setDryRun(e.target.checked)}
                       disabled={loading}
                     />
+                    <span className="cyber-checkbox"></span>
                     <span>Dry Run (Plan Only)</span>
                   </label>
                 </div>

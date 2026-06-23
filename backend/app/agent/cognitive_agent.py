@@ -74,7 +74,7 @@ TASK EXECUTION GUIDELINES:
 1. **Multi-Step Planning**: For complex tasks, break them down into clear steps
 2. **Schema First**: Always check the schema before writing queries
 3. **Security Awareness**: Remember your role's limitations
-4. **Error Handling**: If a query fails due to permissions, explain why to the user
+4. **Error Handling**: If a query fails due to permissions or returns Access Denied, do NOT retry it or attempt to query system catalogs. Stop immediately and explain the permission limitation to the user in your Final Answer.
 5. **Transaction Safety**: For multi-step operations (like archiving), explain each step
 
 VISUALIZATION GUIDANCE:

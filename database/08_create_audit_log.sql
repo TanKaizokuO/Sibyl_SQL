@@ -4,6 +4,9 @@
 -- Purpose: Create audit_log table for query compliance and execution tracking
 -- ================================
 
+-- Drop existing table if it exists
+DROP TABLE IF EXISTS audit_log CASCADE;
+
 CREATE TABLE audit_log (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID,                 -- from JWT (NULL for unauthenticated or system)

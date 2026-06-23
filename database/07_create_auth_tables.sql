@@ -4,6 +4,9 @@
 -- Purpose: Create table for authenticated users and seed demo accounts
 -- ================================
 
+-- Drop existing table if it exists
+DROP TABLE IF EXISTS auth_users CASCADE;
+
 CREATE TABLE auth_users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR(100) UNIQUE NOT NULL,
