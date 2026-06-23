@@ -142,9 +142,10 @@ def get_schema_func(table_name: str) -> str:
     Returns:
         JSON string with schema details
     """
-    # Sanitize input - strip any extra text LLM might add
-    # Example: "sales_data (assuming this is...)" -> "sales_data"
-    table_name = table_name.split('(')[0].split()[0].strip()
+    # Sanitize input - strip any extra text, punctuation, or enclosing quotes/backticks the LLM might add
+    # Example: "'sales_data' (assuming this is...)" -> "sales_data"
+    cleaned = table_name.split('(')[0].split()[0].strip()
+    table_name = cleaned.strip("'\"`;,")
 
     try:
         schema_desc = schema_to_natural_language(table_name)
