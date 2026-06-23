@@ -6,16 +6,16 @@ import DataVisualizerEnhanced from './components/DataVisualizerEnhanced'
 import SuggestionChips from './components/SuggestionChips'
 import ConversationList from './components/ConversationList'
 import Toast from './components/Toast'
-import { 
-  saveConversation, loadConversation, listConversations, 
-  deleteConversation, clearAllConversations, pruneOldConversations, 
-  exportConversations, getTokenUsername 
+import {
+  saveConversation, loadConversation, listConversations,
+  deleteConversation, clearAllConversations, pruneOldConversations,
+  exportConversations, getTokenUsername
 } from './utils/chatStore'
 import './components/DataVisualizer.css'
 import './App.css'
 
 const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
@@ -49,13 +49,13 @@ function App() {
     role: localStorage.getItem('role') || '',
     region: localStorage.getItem('region') || ''
   })
-  
+
   const [conversationId, setConversationId] = useState(generateUUID())
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [dryRun, setDryRun] = useState(false)
-  
+
   const [showAuditLogs, setShowAuditLogs] = useState(false)
   const [auditLogs, setAuditLogs] = useState([])
   const [loadingLogs, setLoadingLogs] = useState(false)
@@ -82,12 +82,12 @@ function App() {
   // Auto-save debounce effect
   useEffect(() => {
     if (messages.length === 0 || !isAuthenticated) return;
-    
+
     const timer = setTimeout(() => {
       saveConversation(conversationId, messages);
       setConversations(listConversations() || []);
     }, 500);
-    
+
     return () => clearTimeout(timer);
   }, [messages, conversationId, isAuthenticated]);
 
@@ -132,13 +132,13 @@ function App() {
     } catch (e) {
       console.error("Failed to reset session on server:", e)
     }
-    
+
     if (messages.length > 0) {
       saveConversation(conversationId, messages);
     }
     pruneOldConversations();
     setConversations(listConversations() || []);
-    
+
     setConversationId(generateUUID())
     setMessages([])
   }
@@ -160,14 +160,14 @@ function App() {
     const chatToRestore = loadConversation(id);
     const chatsList = listConversations() || [];
     const chatSummary = chatsList.find(c => c.id === id);
-    
+
     deleteConversation(id);
     setConversations(listConversations() || []);
-    
+
     if (id === conversationId) {
       handleNewConversation();
     }
-    
+
     setToastMessage({
       text: "Conversation deleted",
       onUndo: () => {
@@ -228,9 +228,9 @@ function App() {
     e.preventDefault()
     if (!input.trim() || loading) return
 
-    const userMessage = { 
-      role: 'user', 
-      content: input + (dryRun ? ' [Dry Run / Plan Only]' : '') 
+    const userMessage = {
+      role: 'user',
+      content: input + (dryRun ? ' [Dry Run / Plan Only]' : '')
     }
     setMessages(prev => [...prev, userMessage])
     setInput('')
@@ -281,7 +281,7 @@ function App() {
         setMessages(prev => {
           const newMsgs = [...prev];
           const lastMsg = { ...newMsgs[newMsgs.length - 1] };
-          
+
           if (event.type === 'thought') {
             const steps = [...(lastMsg.intermediateSteps || [])];
             steps.push({
@@ -315,7 +315,7 @@ function App() {
               if (parsed && parsed.data) {
                 parsedData = parsed.data;
               }
-            } catch (_) {}
+            } catch (_) { }
 
             steps.push({
               type: 'observation',
@@ -399,7 +399,7 @@ function App() {
           if (parsed.success && parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
             visualizationData = parsed.data;
           }
-        } catch (e) {}
+        } catch (e) { }
       }
       if (visualizationData && Array.isArray(visualizationData) && visualizationData.length > 0) {
         return { ...step, visualizationData };
@@ -481,7 +481,7 @@ function App() {
             {loadingLogs ? 'Refreshing...' : 'Refresh Logs'}
           </button>
         </div>
-        
+
         {loadingLogs ? (
           <div className="logs-loading">
             <Loader2 className="spinner icon" />
@@ -544,9 +544,9 @@ function App() {
         <div className="header-content">
           <div className="header-title">
             <Brain className="icon icon-primary" />
-            Cognitive Database Agent
+            Sybil-SQL
           </div>
-          
+
           <div className="user-profile-nav">
             <div className="user-badge">
               <Shield className="icon-primary icon-sm" />
@@ -561,7 +561,7 @@ function App() {
             </div>
 
             {currentUser.role === 'admin' && (
-              <button 
+              <button
                 className={`btn btn-ghost viz-btn ${showAuditLogs ? 'active' : ''}`}
                 onClick={() => setShowAuditLogs(!showAuditLogs)}
               >
@@ -594,124 +594,124 @@ function App() {
         ) : (
           <>
             <div className="chat-container">
-            <div className="messages">
-              {messages.length === 0 ? (
-                <div className="empty-state">
-                  <Database className="empty-state-icon" />
-                  <h3 className="empty-state-title">Secure Natural Language Database Interface</h3>
-                  <p className="empty-state-text">Your permissions are locked to role: <strong>{currentUser.role}</strong> {currentUser.region && `(${currentUser.region} region)`}.</p>
-                  <p className="empty-state-text">Try: "Show total sales for 2023"</p>
-                  <p className="empty-state-text">Or: "List all available tables in the database"</p>
-                </div>
-              ) : (
-                messages.map((msg, idx) => {
-                  console.log(`💬 [MESSAGE ${idx}] Rendering message:`, msg)
-                  return (
-                    <div key={idx} className={`message message-${msg.role}`}>
-                      {msg.role === 'error' ? (
-                        <div className={`alert ${msg.isRls ? 'alert-rls' : 'alert-error'}`}>
-                          <AlertCircle className="icon" />
-                          <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
-                        </div>
-                      ) : msg.role === 'user' ? (
-                        <div className="message-content">
-                          {msg.content}
-                        </div>
-                      ) : (
-                        <>
-                          {getVisualizationSteps(msg.intermediateSteps).map((vizStep, vIdx) => (
-                            <DataVisualizerEnhanced
-                              key={vIdx}
-                              stepData={vizStep.visualizationData}
-                              llmVisualizationHint={msg.visualizationHint}
-                            />
-                          ))}
+              <div className="messages">
+                {messages.length === 0 ? (
+                  <div className="empty-state">
+                    <Database className="empty-state-icon" />
+                    <h3 className="empty-state-title">Secure Natural Language Database Interface</h3>
+                    <p className="empty-state-text">Your permissions are locked to role: <strong>{currentUser.role}</strong> {currentUser.region && `(${currentUser.region} region)`}.</p>
+                    <p className="empty-state-text">Try: "Show total sales for 2023"</p>
+                    <p className="empty-state-text">Or: "List all available tables in the database"</p>
+                  </div>
+                ) : (
+                  messages.map((msg, idx) => {
+                    console.log(`💬 [MESSAGE ${idx}] Rendering message:`, msg)
+                    return (
+                      <div key={idx} className={`message message-${msg.role}`}>
+                        {msg.role === 'error' ? (
+                          <div className={`alert ${msg.isRls ? 'alert-rls' : 'alert-error'}`}>
+                            <AlertCircle className="icon" />
+                            <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                          </div>
+                        ) : msg.role === 'user' ? (
+                          <div className="message-content">
+                            {msg.content}
+                          </div>
+                        ) : (
+                          <>
+                            {getVisualizationSteps(msg.intermediateSteps).map((vizStep, vIdx) => (
+                              <DataVisualizerEnhanced
+                                key={vIdx}
+                                stepData={vizStep.visualizationData}
+                                llmVisualizationHint={msg.visualizationHint}
+                              />
+                            ))}
 
-                          {idx === messages.length - 1 && loading && !msg.content && (
-                            <div className="message-content thinking-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                              <Loader2 className="icon spinner icon-sm" />
-                              Processing cognitive input...
-                            </div>
-                          )}
-
-                          {msg.content && (
-                            <div className="final-answer">
-                              <div className="answer-header">
-                                {msg.dryRun ? 'Dry Run Plan (Not Executed):' : 'Final Answer:'}
+                            {idx === messages.length - 1 && loading && !msg.content && (
+                              <div className="message-content thinking-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                                <Loader2 className="icon spinner icon-sm" />
+                                Processing cognitive input...
                               </div>
-                              <div className="message-content">
-                                {idx === messages.length - 1 && !msg.completedTyping && msg.content ? (
-                                  <Typewriter 
-                                    text={msg.content} 
-                                    speed={5} 
-                                    onComplete={() => handleTypewriterComplete(idx)} 
-                                  />
-                                ) : (
-                                  msg.content
-                                )}
+                            )}
+
+                            {msg.content && (
+                              <div className="final-answer">
+                                <div className="answer-header">
+                                  {msg.dryRun ? 'Dry Run Plan (Not Executed):' : 'Final Answer:'}
+                                </div>
+                                <div className="message-content">
+                                  {idx === messages.length - 1 && !msg.completedTyping && msg.content ? (
+                                    <Typewriter
+                                      text={msg.content}
+                                      speed={5}
+                                      onComplete={() => handleTypewriterComplete(idx)}
+                                    />
+                                  ) : (
+                                    msg.content
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {/* Suggestion chips - appear after final answer */}
-                          {msg.suggestions && msg.suggestions.length > 0 && (
-                            <SuggestionChips
-                              suggestions={msg.suggestions}
-                              onSuggestionClick={handleSuggestionClick}
-                            />
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )
-                })
-              )}
+                            {/* Suggestion chips - appear after final answer */}
+                            {msg.suggestions && msg.suggestions.length > 0 && (
+                              <SuggestionChips
+                                suggestions={msg.suggestions}
+                                onSuggestionClick={handleSuggestionClick}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
 
 
+              </div>
+
+              <div className="input-area">
+                <form onSubmit={handleSubmit} className="input-form">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ask a database question..."
+                    className={`input ${currentUser.role === 'viewer' ? 'input-viewer' : 'input-active'}`}
+                    disabled={loading}
+                  />
+
+                  <div className="dry-run-control">
+                    <label className="cyber-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={dryRun}
+                        onChange={(e) => setDryRun(e.target.checked)}
+                        disabled={loading}
+                      />
+                      <span className="cyber-checkbox"></span>
+                      <span>Dry Run (Plan Only)</span>
+                    </label>
+                  </div>
+
+                  <button
+                    id="chat-submit-btn"
+                    type="submit"
+                    disabled={loading || !input.trim()}
+                    className="btn btn-primary"
+                  >
+                    {loading ? (
+                      <Loader2 className="icon spinner" />
+                    ) : (
+                      <Send className="icon" />
+                    )}
+                    Send
+                  </button>
+                </form>
+              </div>
             </div>
 
-            <div className="input-area">
-              <form onSubmit={handleSubmit} className="input-form">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a database question..."
-                  className={`input ${currentUser.role === 'viewer' ? 'input-viewer' : 'input-active'}`}
-                  disabled={loading}
-                />
-                
-                <div className="dry-run-control">
-                  <label className="cyber-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={dryRun}
-                      onChange={(e) => setDryRun(e.target.checked)}
-                      disabled={loading}
-                    />
-                    <span className="cyber-checkbox"></span>
-                    <span>Dry Run (Plan Only)</span>
-                  </label>
-                </div>
-
-                <button
-                  id="chat-submit-btn"
-                  type="submit"
-                  disabled={loading || !input.trim()}
-                  className="btn btn-primary"
-                >
-                  {loading ? (
-                    <Loader2 className="icon spinner" />
-                  ) : (
-                    <Send className="icon" />
-                  )}
-                  Send
-                </button>
-              </form>
-            </div>
-          </div>
-            
-          <div className="sidebar-terminal">
+            <div className="sidebar-terminal">
               <div className={`sidebar-header ${loading ? 'active' : ''}`}>
                 <Code className="icon-sm" />
                 Autonomous Cognitive Core
@@ -724,7 +724,7 @@ function App() {
         )}
       </main>
 
-      <ConversationList 
+      <ConversationList
         isOpen={showConversationDrawer}
         onClose={() => setShowConversationDrawer(false)}
         conversations={conversations}
@@ -734,9 +734,9 @@ function App() {
         onClearAll={handleClearAll}
         onExport={handleExport}
       />
-      
+
       {toastMessage && (
-        <Toast 
+        <Toast
           message={toastMessage.text}
           onUndo={toastMessage.onUndo}
           onDismiss={() => setToastMessage(null)}
