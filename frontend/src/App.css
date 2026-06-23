@@ -132,21 +132,27 @@
 .sidebar-header.active::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 240, 255, 0.1) 2px,
-    rgba(0, 240, 255, 0.1) 4px
-  );
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 240, 255, 0.1) 2px,
+      rgba(0, 240, 255, 0.1) 4px);
   pointer-events: none;
   animation: scanline 4s linear infinite;
 }
 
 @keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
 }
 
 .sidebar-content {
@@ -176,8 +182,15 @@
 }
 
 @keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Messages */
@@ -377,6 +390,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -465,8 +479,13 @@
   letter-spacing: 0.05em;
 }
 
-.step-action .step-label { color: var(--neon-cyan); }
-.step-observation .step-label { color: var(--toxic-green); }
+.step-action .step-label {
+  color: var(--neon-cyan);
+}
+
+.step-observation .step-label {
+  color: var(--toxic-green);
+}
 
 .step-thinking {
   margin: 0.5rem 0;
@@ -522,8 +541,15 @@
 }
 
 @keyframes blink-cursor {
-  from, to { border-color: transparent }
-  50% { border-color: var(--neon-cyan); }
+
+  from,
+  to {
+    border-color: transparent
+  }
+
+  50% {
+    border-color: var(--neon-cyan);
+  }
 }
 
 /* Final Answer */
@@ -583,27 +609,41 @@
 
 .viz-btn {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  /* Subtle teal border instead of standard grey */
   border-radius: var(--radius);
-  background: white;
-  color: var(--text);
+  background: transparent;
+  /* 🚨 Kills the blinding white */
+  color: #94a3b8;
+  /* Muted slate grey for unselected icons */
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.25rem;
   font-size: 0.875rem;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
 
 .viz-btn:hover {
-  background: var(--bg-secondary);
+  background: rgba(0, 240, 255, 0.1);
+  /* Slight neon tint on hover */
   border-color: var(--primary);
+  color: var(--primary);
+  /* Makes the icon light up on hover */
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+  /* Subtle outer glow */
 }
 
 .viz-btn.active {
   background: var(--primary);
-  color: white;
+  /* Assuming this is your neon cyan */
+  color: #0a0a0a;
+  /* 🚨 VERY DARK text. White on cyan is unreadable */
   border-color: var(--primary);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+  /* Stronger glow for the active state */
+  font-weight: 600;
+  /* Makes the active text pop */
 }
 
 .icon-sm {
@@ -826,12 +866,12 @@
   display: inline-block;
 }
 
-.cyber-checkbox-label input[type="checkbox"]:focus-visible ~ .cyber-checkbox {
+.cyber-checkbox-label input[type="checkbox"]:focus-visible~.cyber-checkbox {
   outline: 2px dashed var(--neon-cyan);
   outline-offset: 2px;
 }
 
-.cyber-checkbox-label input[type="checkbox"]:checked ~ .cyber-checkbox {
+.cyber-checkbox-label input[type="checkbox"]:checked~.cyber-checkbox {
   background: var(--neon-cyan);
   border-color: var(--neon-cyan);
   box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
@@ -870,7 +910,8 @@
   color: var(--text);
 }
 
-.logs-loading, .empty-logs {
+.logs-loading,
+.empty-logs {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -934,10 +975,25 @@
   text-transform: uppercase;
 }
 
-.action-select { background: #dbeafe; color: #1e40af; }
-.action-insert { background: #dcfce7; color: #166534; }
-.action-update { background: #fef9c3; color: #854d0e; }
-.action-delete { background: #fee2e2; color: #991b1b; }
+.action-select {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.action-insert {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.action-update {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.action-delete {
+  background: #fee2e2;
+  color: #991b1b;
+}
 
 .sql-col code {
   font-family: 'Courier New', monospace;
@@ -986,11 +1042,23 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-5px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-5px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
