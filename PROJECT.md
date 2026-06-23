@@ -192,6 +192,10 @@ Before any SQL statement is sent to the database, it undergoes rigorous inspecti
 - **Auto-Title Generation:** Automatically detects substantive user prompts to title conversations, falling back to dates or first assistant responses.
 - **LRU Pruning:** Restricts local storage footprint by evicting older conversations when exceeding a maximum count (default 20), avoiding browser local storage quota exceptions.
 
+### 10. Interactive Toast Alerts & Confirmation Modals
+- **Toast Notifications:** Standardized success, error, and informational messages that slide into view at the top-right corner. Used for copy confirmations, network actions, and security warning banners.
+- **ConfirmModal Prompt:** Enforces strict modal confirmation dialog overlay prior to critical destructive actions (such as resetting the session cache or clearing all past local conversations), avoiding accidental history deletion.
+
 ---
 
 ## 🏗️ Detailed REST API Endpoints
