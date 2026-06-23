@@ -1,9 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { Brain, Database, Send, Loader2, AlertCircle, Code, Eye, LogOut, Shield, MapPin, ClipboardList } from 'lucide-react'
+import { Brain, Database, Send, Loader2, AlertCircle, Code, Eye, LogOut, Shield, MapPin, ClipboardList, Menu } from 'lucide-react'
 import { chatWithAgent, chatWithAgentStream, resetConversation, logout, getAuditLogs } from './api/agent'
 import LoginForm from './components/LoginForm'
 import DataVisualizerEnhanced from './components/DataVisualizerEnhanced'
 import SuggestionChips from './components/SuggestionChips'
+import ConversationList from './components/ConversationList'
+import Toast from './components/Toast'
+import { 
+  saveConversation, loadConversation, listConversations, 
+  deleteConversation, clearAllConversations, pruneOldConversations, 
+  exportConversations, getTokenUsername 
+} from './utils/chatStore'
 import './components/DataVisualizer.css'
 import './App.css'
 
@@ -53,6 +60,50 @@ function App() {
   const [auditLogs, setAuditLogs] = useState([])
   const [loadingLogs, setLoadingLogs] = useState(false)
 
+  const [showConversationDrawer, setShowConversationDrawer] = useState(false)
+  const [conversations, setConversations] = useState([])
+  const [toastMessage, setToastMessage] = useState(null)
+
+  const messagesRef = useRef(messages)
+  const conversationIdRef = useRef(conversationId)
+
+  useEffect(() => {
+    messagesRef.current = messages;
+    conversationIdRef.current = conversationId;
+  }, [messages, conversationId]);
+
+  // Load conversations on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      setConversations(listConversations() || []);
+    }
+  }, [isAuthenticated]);
+
+  // Auto-save debounce effect
+  useEffect(() => {
+    if (messages.length === 0 || !isAuthenticated) return;
+    
+    const timer = setTimeout(() => {
+      saveConversation(conversationId, messages);
+      setConversations(listConversations() || []);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [messages, conversationId, isAuthenticated]);
+
+  // Sync to local storage on beforeunload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const msgs = messagesRef.current;
+      const cId = conversationIdRef.current;
+      if (msgs && msgs.length > 0 && isAuthenticated) {
+        saveConversation(cId, msgs);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isAuthenticated]);
+
   const handleLoginSuccess = (data) => {
     setIsAuthenticated(true)
     setCurrentUser({
@@ -69,6 +120,9 @@ function App() {
     setCurrentUser({ username: '', role: '', region: '' })
     setMessages([])
     setShowAuditLogs(false)
+    setShowConversationDrawer(false)
+    setConversations([])
+    setToastMessage(null)
     setConversationId(generateUUID())
   }
 
@@ -78,8 +132,68 @@ function App() {
     } catch (e) {
       console.error("Failed to reset session on server:", e)
     }
+    
+    if (messages.length > 0) {
+      saveConversation(conversationId, messages);
+    }
+    pruneOldConversations();
+    setConversations(listConversations() || []);
+    
     setConversationId(generateUUID())
     setMessages([])
+  }
+
+  const handleSelectConversation = (id) => {
+    const loadedMessages = loadConversation(id);
+    if (loadedMessages) {
+      const displayMessages = loadedMessages.map(msg => ({
+        ...msg,
+        completedTyping: true
+      }));
+      setMessages(displayMessages);
+      setConversationId(generateUUID());
+      setShowConversationDrawer(false);
+    }
+  }
+
+  const handleDeleteConversation = (id) => {
+    const chatToRestore = loadConversation(id);
+    const chatsList = listConversations() || [];
+    const chatSummary = chatsList.find(c => c.id === id);
+    
+    deleteConversation(id);
+    setConversations(listConversations() || []);
+    
+    if (id === conversationId) {
+      handleNewConversation();
+    }
+    
+    setToastMessage({
+      text: "Conversation deleted",
+      onUndo: () => {
+        saveConversation(id, chatToRestore, chatSummary?.title);
+        setConversations(listConversations() || []);
+      }
+    });
+  }
+
+  const handleClearAll = () => {
+    setToastMessage(null); // Cancel pending undo
+    clearAllConversations();
+    setConversations([]);
+    handleNewConversation();
+  }
+
+  const handleExport = () => {
+    const data = exportConversations();
+    if (!data) return;
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sybilsql_export_${getTokenUsername()}_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   const fetchAuditLogs = async () => {
@@ -456,6 +570,11 @@ function App() {
               </button>
             )}
 
+            <button className="btn btn-ghost" onClick={() => setShowConversationDrawer(true)}>
+              <Menu className="icon-sm" />
+              History
+            </button>
+
             <button className="btn btn-ghost" onClick={handleNewConversation}>
               <Brain className="icon-sm" />
               New Conversation
@@ -604,6 +723,26 @@ function App() {
           </>
         )}
       </main>
+
+      <ConversationList 
+        isOpen={showConversationDrawer}
+        onClose={() => setShowConversationDrawer(false)}
+        conversations={conversations}
+        currentConversationId={conversationId}
+        onSelect={handleSelectConversation}
+        onDelete={handleDeleteConversation}
+        onClearAll={handleClearAll}
+        onExport={handleExport}
+      />
+      
+      {toastMessage && (
+        <Toast 
+          message={toastMessage.text}
+          onUndo={toastMessage.onUndo}
+          onDismiss={() => setToastMessage(null)}
+          duration={3000}
+        />
+      )}
     </div>
   )
 }
