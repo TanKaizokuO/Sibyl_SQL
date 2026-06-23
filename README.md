@@ -277,8 +277,8 @@ backend/
  └── core/         # Config & settings
 
 frontend/
- ├── components/   # Visualizer, SuggestionChips & UI components
- ├── utils/        # Auto chart logic with LLM priority
+ ├── components/   # Visualizer, SuggestionChips, Toast, ConfirmModal & ConversationList
+ ├── utils/        # Auto chart logic and user-scoped local storage chatStore
  └── api/          # Backend client & streaming logic
 
 database/
