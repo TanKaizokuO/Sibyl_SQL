@@ -31,7 +31,9 @@ from backend.app.core.auth import current_user_var
 from backend.app.agent.query_validator import QueryValidator
 from backend.app.db.audit import log_query
 
-# Context variable for dry-run mode
+# Thread-safe ContextVar to flag dry-run executions.
+# When True, SQL statement writes (INSERT, UPDATE, DELETE) are parsed and validated
+# but not committed, allowing validation tests to run safely.
 dry_run_var: ContextVar[bool] = ContextVar("dry_run", default=False)
 
 logger = logging.getLogger(__name__)
@@ -59,6 +61,10 @@ class AgentContext:
     """
     Shared context for agent execution.
     Stores the current role and region for all tool calls.
+
+    This context is dynamically set by the ReAct agent framework at the beginning
+    of the query loop, ensuring that all subsequent SQL tools impersonate the
+    correct DB role (e.g., db_viewer, db_manager, db_admin) and enforce proper RLS.
     """
 
     def __init__(self, role: str = "viewer", region: Optional[str] = None):
